@@ -1,6 +1,18 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import User from "../models/User";
+import { Types } from "mongoose";
+
+const createUserToken = (id: Types.ObjectId): string => {
+    if (!process.env.SECRET) {
+        console.error("SECRET not found in .env");
+        process.exit(1);
+    }
+
+    const token = jwt.sign({ id }, process.env.SECRET, { expiresIn: "1h" });
+    return token;
+}
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
@@ -25,7 +37,9 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const hash = await bcrypt.hash(password, salt);
 
     const user = await User.create({ email, password: hash });
-    res.status(200).json(user);
+    const token = createUserToken(user._id);
+
+    res.status(200).json({ email, token });
 }
 
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -53,5 +67,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
-    res.status(200).json(user);
+    const token = createUserToken(user._id);
+    res.status(200).json({ email, token });
 }

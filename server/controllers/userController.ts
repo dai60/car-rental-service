@@ -1,16 +1,16 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
 import { Types } from "mongoose";
+import User from "../models/User";
+
+if (!process.env.SECRET) {
+    console.error("SECRET not found in .env");
+    process.exit(1);
+}
 
 const createUserToken = (id: Types.ObjectId): string => {
-    if (!process.env.SECRET) {
-        console.error("SECRET not found in .env");
-        process.exit(1);
-    }
-
-    const token = jwt.sign({ id }, process.env.SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id }, process.env.SECRET!, { expiresIn: "1h" });
     return token;
 }
 

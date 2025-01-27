@@ -1,7 +1,6 @@
 import "dotenv/config";
-import express from "express";
 import mongoose from "mongoose";
-import userRoutes from "./routes/userRoutes";
+import app from "./app";
 
 if (!process.env.DB) {
     console.error("DB not found in .env");
@@ -11,16 +10,6 @@ if (!process.env.PORT) {
     console.error("PORT not found in .env");
     process.exit(1);
 }
-
-const app = express();
-app.use(express.json());
-
-app.use((req, res, next) => {
-    console.log(req.method, req.url, req.body);
-    next();
-})
-
-app.use("/api/user", userRoutes);
 
 mongoose.connect(process.env.DB)
     .then(_ => {

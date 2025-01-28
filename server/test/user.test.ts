@@ -8,8 +8,6 @@ import app from "../app";
 import User from "../models/User";
 
 beforeAll(async () => {
-    process.env.SECRET = "test";
-
     await dbConnect();
 });
 

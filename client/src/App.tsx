@@ -1,43 +1,59 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AuthProvider } from "./context/Auth";
+import { AuthProvider, useAuth } from "./context/Auth";
 import Layout from "./Layout";
+import ErrorPage from "./pages/ErrorPage";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRoute from "./components/AuthRoute";
-import Equipment from "./pages/Equipment";
-
-const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Layout />,
-        children: [
-            {
-                index: true,
-                element: <Home />,
-            },
-            {
-                path: "/login",
-                element: <Login />,
-            },
-            {
-                path: "/signup",
-                element: <Signup />,
-            },
-            {
-                path: "/equipment",
-                element: <AuthRoute element={<Equipment />} />
-            },
-        ]
-    },
-]);
+import EquipmentList, { equipmentListLoader } from "./pages/EquipmentList";
+import EquipmentDetails from "./pages/EquipmentDetails";
 
 function App() {
     return (
         <AuthProvider>
-            <RouterProvider router={router} />
+            <Router />
         </AuthProvider>
     );
 }
 
 export default App;
+
+function Router() {
+    const { user } = useAuth();
+
+    const router = createBrowserRouter([{
+        path: "/",
+        element: <Layout />,
+        children: [{
+            errorElement: <ErrorPage />,
+            children: [
+                {
+                    index: true,
+                    element: <Home />,
+                },
+                {
+                    path: "/login",
+                    element: <Login />,
+                },
+                {
+                    path: "/signup",
+                    element: <Signup />,
+                },
+                {
+                    path: "/equipment",
+                    element: <AuthRoute element={<EquipmentList />} />,
+                    loader: async () => equipmentListLoader(user?.token),
+                },
+                {
+                    path: "/equipment/:id",
+                    element: <AuthRoute element={<EquipmentDetails />} />,
+                },
+            ],
+        }],
+    }]);
+
+    return (
+        <RouterProvider router={router} />
+    )
+}

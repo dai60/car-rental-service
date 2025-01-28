@@ -34,7 +34,7 @@ function validateEquipmentData(body: any): EquipmentFormData {
 }
 
 export const getEquipment = async (req: Request, res: Response): Promise<void> => {
-    const equipment = await Equipment.find({});
+    const equipment = await Equipment.find({}).sort({ createdAt: -1 });
     res.status(200).json(equipment);
 }
 

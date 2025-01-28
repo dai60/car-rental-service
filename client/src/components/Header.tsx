@@ -11,7 +11,10 @@ const Header = () => {
                 <Link to="/" className="font-bold text-lg text-yellow-600">Equipment Rental Service</Link>
                 {user && (
                     <div>
-                        <span className="me-4">{user.email}</span>
+                        <span className="me-4">{user.email} {user.admin ?
+                            (<span className="text-yellow-600">(admin)</span>) :
+                            (<span className="text-zinc-400">(user)</span>)}
+                        </span>
                         <button
                             onClick={() => {
                                 logout();

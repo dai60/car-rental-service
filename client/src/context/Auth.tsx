@@ -2,6 +2,7 @@ import { createContext, PropsWithChildren, useContext, useState } from "react";
 
 type AuthUser = {
     email: string;
+    admin: boolean;
     token: string;
 }
 
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     }
 
     const logout = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         setUser(undefined);
     }
 

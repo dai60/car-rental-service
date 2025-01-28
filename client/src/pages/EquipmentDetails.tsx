@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
-import { EquipmentData } from "./EquipmentList";
-import Placeholder from "../public/240x120.svg";
 import { useAuth } from "../context/Auth";
 import EquipmentForm from "../components/EquipmentForm";
 import ReservationForm from "../components/ReservationForm";
+import Equipment from "../components/Equipment";
+import { EquipmentData } from "../utilities";
 
 export const equipmentDetailsLoader = (token?: string) => {
-    return async ({ params }: LoaderFunctionArgs): Promise<EquipmentData> => {
+    return async ({ params }: LoaderFunctionArgs) => {
         const res = await fetch(`/api/equipment/${params.id}`, {
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -95,17 +95,7 @@ const EquipmentDetails = () => {
 
     return (
         <div className="mx-auto w-full px-8">
-            <div className="flex border-2 border-zinc-50 rounded-md mb-4">
-                <div className="p-4">
-                    <h2 className="text-xl font-bold mb-2">{data.name}</h2>
-                    {data.description ?
-                        (<p className="text-sm mb-1">{data.description}</p>) :
-                        (<p className="text-sm text-zinc-400 mb-1">No description provided.</p>)
-                    }
-                    <p className="text-lg font-semibold">${data.price.toFixed(2)}</p>
-                </div>
-                <img className="ml-auto" src={Placeholder} alt={data.name} />
-            </div>
+            <Equipment className="mb-4" {...data} />
             {user?.admin ? (
                 <>
                     <button

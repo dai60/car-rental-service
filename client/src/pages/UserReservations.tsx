@@ -1,20 +1,9 @@
 import { useLoaderData } from "react-router-dom";
-
-type ReservationData = {
-    _id: string;
-    date: string;
-    equipment: {
-        _id: string;
-        name: string;
-        description?: string;
-        price: number;
-    },
-    createdAt: string;
-    updatedAt: string;
-}
+import { ReservationData } from "../utilities";
+import Equipment from "../components/Equipment";
 
 export const userReservationsLoader = (token?: string) => {
-    return async (): Promise<ReservationData[]> => {
+    return async () => {
         const res = await fetch(`/api/reservation/user`, {
             headers: { "Authorization": `Bearer ${token}` },
         });
@@ -38,10 +27,10 @@ const UserReservations = () => {
     return (
         <div className="mx-auto w-full px-8">
             {data.map(reservation => (
-                <div key={reservation._id} className="border-2 border-zinc-50 rounded-md mb-4 p-4">
-                    <h2 className="text-xl font-bold">{reservation.equipment.name}</h2>
-                    <p className="text-sm text-zinc-400">Reserved for {new Date(reservation.date).toISOString().substring(0, 10)}</p>
-                </div>
+                <>
+                    {typeof reservation.equipment === "object" &&
+                        <Equipment className="mb-4" {...reservation.equipment} />}
+                </>
             ))}
         </div>
     );

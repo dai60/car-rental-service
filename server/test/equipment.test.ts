@@ -120,4 +120,49 @@ describe("/api/equipment", () => {
         const data = await Equipment.findById(id);
         expect(data?.price).toBe(499.99);
     });
+
+    it("user can't delete equipment", async () => {
+        vi.spyOn(Equipment, "findByIdAndDelete");
+
+        const adminLogin = await request(app).post("/api/user/login").send(admin);
+        const post = await request(app)
+            .post("/api/equipment")
+            .send(equipment)
+            .set("Authorization", `Bearer ${adminLogin.body.token}`);
+
+        const id = post.body._id;
+
+        const login = await request(app).post("/api/user/login").send(user);
+        const res = await request(app)
+            .delete(`/api/equipment/${id}`)
+            .set("Authorization", `Bearer ${login.body.token}`);
+
+        expect(res.status).toBe(401);
+        expect(Equipment.findByIdAndDelete).not.toHaveBeenCalled();
+
+        const data = await Equipment.findById(id);
+        expect(data).toBeTruthy();
+    });
+
+    it("admin delete equipment", async () => {
+        vi.spyOn(Equipment, "findByIdAndDelete");
+
+        const login = await request(app).post("/api/user/login").send(admin);
+        const post = await request(app)
+            .post("/api/equipment")
+            .send(equipment)
+            .set("Authorization", `Bearer ${login.body.token}`);
+
+        const id = post.body._id;
+
+        const res = await request(app)
+            .delete(`/api/equipment/${id}`)
+            .set("Authorization", `Bearer ${login.body.token}`);
+
+        expect(res.status).toBe(200);
+        expect(Equipment.findByIdAndDelete).toHaveBeenCalledExactlyOnceWith(id);
+
+        const data = await Equipment.findById(id);
+        expect(data).toBeFalsy();
+    });
 });

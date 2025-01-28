@@ -1,9 +1,9 @@
+import { useEffect, useState } from "react";
 import { LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { EquipmentData } from "./EquipmentList";
 import Placeholder from "../public/240x120.svg";
 import { useAuth } from "../context/Auth";
 import EquipmentForm from "../components/EquipmentForm";
-import { useState } from "react";
 import ReservationForm from "../components/ReservationForm";
 
 export const equipmentDetailsLoader = (token?: string) => {
@@ -71,6 +71,28 @@ const EquipmentDetails = () => {
         }
     }
 
+    const createReservation = async (date?: string) => {
+        const res = await fetch(`/api/reservation`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${user?.token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                equipment: data._id,
+                date,
+            }),
+        });
+
+        const json = await res.json();
+        if (!res.ok) {
+            console.error(json.error);
+        }
+        else {
+            navigate("/reservations");
+        }
+    }
+
     return (
         <div className="mx-auto w-full px-8">
             <div className="flex border-2 border-zinc-50 rounded-md mb-4">
@@ -95,7 +117,7 @@ const EquipmentDetails = () => {
                 </>
             ) : (
                 <>
-                    <ReservationForm />
+                    <ReservationForm handleSubmit={createReservation} />
                 </>
             )}
         </div>

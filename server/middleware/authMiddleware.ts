@@ -39,6 +39,19 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     });
 }
 
+export const isUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+        throw new Error("isUser must be called after authMiddleware");
+    }
+
+    if (req.user.admin) {
+        res.status(401).json({ error: "unauthorized access" });
+        return;
+    }
+
+    next();
+}
+
 export const isAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
         throw new Error("isAdmin must be called after authMiddleware");

@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import AuthRoute from "./components/AuthRoute";
 import EquipmentList, { equipmentListLoader } from "./pages/EquipmentList";
 import EquipmentDetails, { equipmentDetailsLoader } from "./pages/EquipmentDetails";
+import UserReservations, { userReservationsLoader } from "./pages/UserReservations";
 
 function App() {
     return (
@@ -34,7 +35,7 @@ function Router() {
                 },
                 {
                     path: "/login",
-                    element: <Login />,
+                    element: <Login />
                 },
                 {
                     path: "/signup",
@@ -49,6 +50,11 @@ function Router() {
                     path: "/equipment/:id",
                     element: <AuthRoute element={<EquipmentDetails />} />,
                     loader: equipmentDetailsLoader(user?.token),
+                },
+                {
+                    path: "/reservations",
+                    element: <AuthRoute element={<UserReservations />} />,
+                    loader: userReservationsLoader(user?.token),
                 },
             ],
         }],

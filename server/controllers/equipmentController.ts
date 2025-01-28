@@ -26,6 +26,9 @@ function validateEquipmentData(body: any): EquipmentFormData {
     if (typeof price !== "number") {
         throw new Error("price must be a number");
     }
+    if (price < 0) {
+        throw new Error("price can't be negative");
+    }
     if (visibility && visibility !== "draft" && visibility !== "public") {
         throw new Error("visibility must be 'draft' or 'public'");
     }
@@ -34,7 +37,22 @@ function validateEquipmentData(body: any): EquipmentFormData {
 }
 
 export const getEquipment = async (req: Request, res: Response): Promise<void> => {
-    const equipment = await Equipment.find({}).sort({ createdAt: -1 });
+    const { id } = req.params;
+    try {
+        const equipment = await Equipment.findById(id);
+        if (!equipment) {
+            throw new Error("not found");
+        }
+        res.status(200).json(equipment);
+    }
+    catch (err) {
+        res.status(404).json({ error: "not found" });
+    }
+}
+
+export const getAllEquipment = async (req: Request, res: Response): Promise<void> => {
+    const query = req.user?.admin ? {} : { visibility: "public" };
+    const equipment = await Equipment.find(query).sort({ updatedAt: -1 });
     res.status(200).json(equipment);
 }
 
@@ -52,6 +70,29 @@ export const addNewEquipment = async (req: Request, res: Response): Promise<void
     res.status(200).json(equipment);
 }
 
+export const updateEquipment = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    let data: EquipmentFormData;
+    try {
+        data = validateEquipmentData(req.body);
+    }
+    catch (err) {
+        res.status(400).json({ error: err.message });
+        return;
+    }
+
+    try {
+        const equipment = await Equipment.findByIdAndUpdate(id, data);
+        if (!equipment) {
+            throw new Error("not found");
+        }
+        res.status(200).json(equipment);
+    }
+    catch (err) {
+        res.status(404).json({ error: "not found" });
+    }
+}
+
 export const deleteEquipment = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     if (!id) {
@@ -59,6 +100,14 @@ export const deleteEquipment = async (req: Request, res: Response): Promise<void
         return;
     }
 
-    await Equipment.findByIdAndDelete(id);
-    res.status(200).json({});
+    try {
+        const equipment = await Equipment.findByIdAndDelete(id);
+        if (!equipment) {
+            throw new Error("not found");
+        }
+        res.status(200).json({});
+    }
+    catch (err) {
+        res.status(404).json({ error: "not found" });
+    }
 }

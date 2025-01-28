@@ -7,7 +7,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRoute from "./components/AuthRoute";
 import EquipmentList, { equipmentListLoader } from "./pages/EquipmentList";
-import EquipmentDetails from "./pages/EquipmentDetails";
+import EquipmentDetails, { equipmentDetailsLoader } from "./pages/EquipmentDetails";
 
 function App() {
     return (
@@ -43,11 +43,12 @@ function Router() {
                 {
                     path: "/equipment",
                     element: <AuthRoute element={<EquipmentList />} />,
-                    loader: async () => equipmentListLoader(user?.token),
+                    loader: equipmentListLoader(user?.token),
                 },
                 {
                     path: "/equipment/:id",
                     element: <AuthRoute element={<EquipmentDetails />} />,
+                    loader: equipmentDetailsLoader(user?.token),
                 },
             ],
         }],

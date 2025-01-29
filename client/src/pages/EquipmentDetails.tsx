@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
+import { Link, LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import EquipmentForm from "../components/EquipmentForm";
 import ReservationForm from "../components/ReservationForm";
 import Equipment from "../components/Equipment";
-import { EquipmentData } from "../utilities";
+import { EquipmentData, ReservationData } from "../utilities";
+import Section from "../components/Section";
+import Reservation from "../components/Reservation";
 
 export const equipmentDetailsLoader = (token?: string) => {
-    return async ({ params }: LoaderFunctionArgs) => {
-        const res = await fetch(`/api/equipment/${params.id}`, {
-            headers: {
-                "Authorization": `Bearer ${token}`,
-            },
+    const fetchData = async (url: string) => {
+        const res = await fetch(url, {
+            headers: { "Authorization": `Bearer ${token}` },
         });
 
         try {
@@ -25,10 +25,17 @@ export const equipmentDetailsLoader = (token?: string) => {
             throw new Error(`${res.status} ${res.statusText}`);
         }
     }
+
+    return async ({ params }: LoaderFunctionArgs) => {
+        return Promise.all([
+            fetchData(`/api/equipment/${params.id}`),
+            fetchData(`/api/reservation/for/${params.id}`),
+        ]);
+    }
 }
 
 const EquipmentDetails = () => {
-    const data = useLoaderData<EquipmentData>();
+    const [equipment, reservations] = useLoaderData<[EquipmentData, ReservationData[]]>();
     const [formError, setFormError] = useState<string | undefined>(undefined);
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -36,7 +43,7 @@ const EquipmentDetails = () => {
 
     const updateEquipment = async (name?: string, description?: string, price?: number, visibility?: string) => {
         setFormError(undefined);
-        const res = await fetch(`/api/equipment/${data._id}`, {
+        const res = await fetch(`/api/equipment/${equipment._id}`, {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -55,7 +62,7 @@ const EquipmentDetails = () => {
     }
 
     const deleteEquipment = async () => {
-        const res = await fetch(`/api/equipment/${data._id}`, {
+        const res = await fetch(`/api/equipment/${equipment._id}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -79,7 +86,7 @@ const EquipmentDetails = () => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                equipment: data._id,
+                equipment: equipment._id,
                 date,
             }),
         });
@@ -89,27 +96,41 @@ const EquipmentDetails = () => {
             console.error(json.error);
         }
         else {
-            navigate("/reservations");
+            navigate(`/reservations/${json._id}`);
         }
     }
 
     return (
         <div className="mx-auto w-full px-8">
-            <Equipment className="mb-4" {...data} />
+            <Section
+                title="Equipment Details"
+                element={<Equipment className="mb-4" {...equipment} />} />
             {user?.admin ? (
-                <>
-                    <button
-                        className="bg-red-600 w-32 py-1 text-lg rounded-md cursor-pointer hover:opacity-80 transition-opacity"
-                        onClick={deleteEquipment}>
-                            Delete
-                    </button>
-                    <EquipmentForm defaultValues={data} buttonText="Edit" handleSubmit={updateEquipment} error={formError} />
-                </>
+                <Section
+                    title="Edit Details"
+                    element={<EquipmentForm
+                        defaultValues={equipment}
+                        handleSubmit={updateEquipment}
+                        handleDelete={deleteEquipment}
+                        error={formError} />} />
             ) : (
-                <>
-                    <ReservationForm handleSubmit={createReservation} />
-                </>
+                <Section
+                    title="Create Reservation"
+                    element={<ReservationForm handleSubmit={createReservation} />} />
             )}
+            <Section
+                title="Reservations"
+                element={reservations.length === 0 ? (
+                    <p className="text-zinc-400 text-center">No reservations.</p>
+                ) : (
+                    <>
+                        {reservations.map(reservation => (
+                            <Link key={reservation._id} to={`/reservations/${reservation._id}`} >
+                                <Reservation className="mb-4 hover:scale-[102%] transition-transform" {...reservation} />
+                            </Link>
+                        ))}
+                    </>
+                )}/>
         </div>
     );
 }

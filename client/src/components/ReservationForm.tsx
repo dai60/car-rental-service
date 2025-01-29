@@ -1,4 +1,5 @@
 import { useId, useRef } from "react";
+import Button from "./Button";
 
 type ReservationFormProps = {
     handleSubmit: (date?: string) => Promise<void>;
@@ -29,7 +30,7 @@ const ReservationForm = ({ handleSubmit }: ReservationFormProps) => {
             }}>
             <label className="block text-sm mb-1" htmlFor={dateId}>Reservation date:</label>
             <input className="block mb-2 border border-zinc-50 [color-scheme:dark]" type="date" name="date" id={dateId} ref={dateRef} required min={now} max={max} defaultValue={now}/>
-            <button className="bg-yellow-600 rounded-md w-32 py-1 cursor-pointer hover:opacity-80 transition-opacity">Reserve</button>
+            <Button className="bg-yellow-600">Reserve</Button>
         </form>
     );
 }

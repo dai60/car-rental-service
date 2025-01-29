@@ -4,6 +4,7 @@ import { useAuth } from "../context/Auth";
 import EquipmentForm from "../components/EquipmentForm";
 import Equipment from "../components/Equipment";
 import { EquipmentData } from "../utilities";
+import Section from "../components/Section";
 
 export const equipmentListLoader = (token?: string) => {
     return async () => {
@@ -54,19 +55,19 @@ const EquipmentList = () => {
 
     return (
         <div className="mx-auto w-full px-8">
-            <div className="mb-8">
-                <h1 className="text-2xl font-semibold mb-4">All Equipment</h1>
-                {data.map(equipment => (
-                    <Link to={`/equipment/${equipment._id}`}>
-                        <Equipment className="mb-4 cursor-pointer hover:scale-105 transition-transform" {...equipment} />
-                    </Link>
-                ))}
-            </div>
-            {user?.admin && (
+            <Section title="All Equipment" element={(
                 <div>
-                    <h1 className="text-2xl font-semibold mb-4">Add New Equipment</h1>
-                    <EquipmentForm buttonText="Save" handleSubmit={addNewEquipment} error={formError}/>
+                    {data.map(equipment => (
+                        <Link key={equipment._id} to={`/equipment/${equipment._id}`}>
+                            <Equipment className="mb-4 cursor-pointer hover:scale-105 transition-transform" {...equipment} />
+                        </Link>
+                    ))}
                 </div>
+            )} />
+            {user?.admin && (
+                <Section
+                    title="Add New Equipment"
+                    element={<EquipmentForm handleSubmit={addNewEquipment} error={formError}/>} />
             )}
         </div>
     );

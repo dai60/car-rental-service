@@ -44,6 +44,7 @@ export const getEquipment = async (req: Request, res: Response): Promise<void> =
         if (!equipment) {
             throw new Error("not found");
         }
+
         res.status(200).json(equipment);
     }
     catch (err) {

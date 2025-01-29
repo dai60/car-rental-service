@@ -1,6 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { dbConnect, dbDisconnect } from "./setup";
-import mongoose from "mongoose";
 import request from "supertest";
 import app from "../app";
 import User from "../models/User";

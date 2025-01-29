@@ -11,11 +11,6 @@ if (!process.env.PORT) {
     process.exit(1);
 }
 
-app.use((req, res, next) => {
-    console.log(req.method, req.url, req.body);
-    next();
-});
-
 mongoose.connect(process.env.DB)
     .then(_ => {
         console.log(`connected to ${process.env.DB}`);

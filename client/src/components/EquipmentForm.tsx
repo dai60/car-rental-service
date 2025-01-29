@@ -2,9 +2,9 @@ import { useId, useRef } from "react";
 import Button from "./Button";
 
 type EquipmentFormProps = {
-    buttonText: string;
     error?: string;
     handleSubmit: (name?: string, description?: string, price?: number, visibility?: string) => Promise<void>;
+    handleDelete?: () => Promise<void>;
     defaultValues?: {
         name?: string;
         description?: string;
@@ -13,7 +13,7 @@ type EquipmentFormProps = {
     }
 }
 
-const EquipmentForm = ({ buttonText, error, handleSubmit, defaultValues }: EquipmentFormProps) => {
+const EquipmentForm = ({ error, handleSubmit, handleDelete, defaultValues }: EquipmentFormProps) => {
     const id = useId();
 
     const nameId = id + "-name";
@@ -34,18 +34,21 @@ const EquipmentForm = ({ buttonText, error, handleSubmit, defaultValues }: Equip
                 handleSubmit(nameRef.current?.value, descriptionRef.current?.value, priceRef.current?.valueAsNumber, visibilityRef.current?.value);
             }}>
             <label className="block text-sm mb-1" htmlFor={nameId}>Name</label>
-            <input className="w-full mb-2" type="text" name="name" id={nameId} ref={nameRef} defaultValue={defaultValues?.name} />
+            <input className="w-full mb-2" type="text" name="name" id={nameId} ref={nameRef} defaultValue={defaultValues?.name} required />
             <label className="block text-sm mb-1" htmlFor={descriptionId}>Description</label>
             <textarea className="w-full mb-2" name="description" id={descriptionId} rows={3} ref={descriptionRef} defaultValue={defaultValues?.description}></textarea>
             <label className="block text-sm mb-1" htmlFor={priceId}>Price</label>
-            <input className="w-full mb-2" type="number" min="0" step="0.01" name="price" id={priceId} ref={priceRef} defaultValue={defaultValues?.price} />
+            <input className="w-full mb-2" type="number" min="0" step="0.01" name="price" id={priceId} ref={priceRef} defaultValue={defaultValues?.price?.toFixed(2)} required />
             <label className="block text-sm mb-1" htmlFor={visibilityId}>Visibility</label>
-            <select className="w-36 mb-2" name="visibility" id={visibilityId} ref={visibilityRef} defaultValue={defaultValues?.visibility}>
-                <option className="bg-black" value="draft">Draft</option>
-                <option className="bg-black" value="public">Public</option>
+            <select className="bg-black w-36 mb-2" name="visibility" id={visibilityId} ref={visibilityRef} defaultValue={defaultValues?.visibility} required>
+                <option value="draft">Draft</option>
+                <option value="public">Public</option>
             </select>
             {error && <p className="text-red-500 text-semibold">{error}</p>}
-            <Button className="block bg-yellow-600 mt-4">{buttonText}</Button>
+            <div>
+                <Button submit={true} className="bg-yellow-600 mt-4 me-2">Save</Button>
+                {handleDelete && <Button className="bg-red-600 mt-4" onClick={handleDelete}>Delete</Button>}
+            </div>
         </form>
     );
 }

@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "tsx watch server.ts",
+    "coverage": "vitest --run --coverage",
     "test": "vitest"
   },
   "keywords": [],

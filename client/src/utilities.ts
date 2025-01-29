@@ -20,10 +20,12 @@ export type EquipmentData = {
     visibility: "draft" | "public";
 } & Timestamps;
 
+export type ReservationStatus = "pending" | "accepted" | "rejected" | "ready";
+
 export type ReservationData = {
     _id: string;
     date: string;
-    status: "pending" | "accepted" | "rejected" | "ready";
+    status: ReservationStatus;
     user: string | UserData;
     equipment: string | EquipmentData;
 } & Timestamps;

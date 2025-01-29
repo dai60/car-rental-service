@@ -11,7 +11,7 @@ export const getUserReservations = async (req: Request, res: Response): Promise<
         res.status(200).json(reservations);
     }
     catch (err) {
-        res.status(500).json({ error: "internal server error" });
+        res.sendStatus(500);
     }
 }
 
@@ -35,7 +35,7 @@ export const getReservation = async (req: Request, res: Response): Promise<void>
         }
     }
     catch (err) {
-        res.status(500).json({ error: "internal server error" });
+        res.sendStatus(500);
     }
 }
 
@@ -45,6 +45,28 @@ export const getAllReservations = async (req: Request, res: Response): Promise<v
             .find({ })
             .sort({ date: 1 })
             .populate("equipment")
+            .populate("user", "email");
+        res.status(200).json(reservations);
+    }
+    catch (err) {
+        res.sendStatus(500);
+    }
+}
+
+export const getReservationsFor = async (req: Request, res: Response): Promise<void> => {
+    if (!req.user) {
+        res.sendStatus(500);
+        return;
+    }
+
+    const id = req.params.id;
+    const query = req.user.admin ?
+        { equipment: id } : { user: req.user.id, equipment: id };
+
+    try {
+        const reservations = await Reservation
+            .find(query)
+            .sort({ date: 1 })
             .populate("user", "email");
         res.status(200).json(reservations);
     }
@@ -62,7 +84,7 @@ export const createReservation = async (req: Request, res: Response): Promise<vo
         res.status(200).json(reservation);
     }
     catch (err) {
-        res.status(500).json({ error: "internal server error" });
+        res.sendStatus(500);
     }
 }
 
@@ -79,6 +101,29 @@ export const changeReservationStatus = async (req: Request, res: Response): Prom
         res.status(200).json(reservation);
     }
     catch (err) {
-        res.status(500).json({ error: "internal server error" });
+        res.sendStatus(500);
+    }
+}
+
+export const cancelReservation = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
+
+    try {
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            res.status(404).json({ error: "not found" });
+            return;
+        }
+
+        if (!reservation.user._id.equals(req.user?.id)) {
+            res.status(401).json({ error: "unauthorized access" });
+            return;
+        }
+
+        const deleted = await Reservation.findByIdAndDelete(id);
+        res.status(200).json(deleted);
+    }
+    catch (err) {
+        res.sendStatus(500);
     }
 }

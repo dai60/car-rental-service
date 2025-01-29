@@ -1,12 +1,10 @@
 import { ClassName, ReservationData } from "../utilities";
-import Button from "./Button";
-import Equipment from "./Equipment";
 
 type ReservationProps = {
 
 } & ReservationData & ClassName;
 
-const Reservation = ({ className = "", date, status, equipment, user }: ReservationProps) => {
+const Reservation = ({ className = "", date, status, user }: ReservationProps) => {
     let statusColor;
     switch (status) {
         case "pending":
@@ -23,8 +21,6 @@ const Reservation = ({ className = "", date, status, equipment, user }: Reservat
             break;
     }
 
-    console.log(equipment);
-
     return (
         <div className={"border-2 border-zinc-50 rounded-md " + className}>
             <div className="flex p-4">
@@ -35,11 +31,8 @@ const Reservation = ({ className = "", date, status, equipment, user }: Reservat
                 </div>
                 <div className="ml-auto">
                     <p className="mb-2 text-right">Status: <span className={`${statusColor} capitalize`}>{status}</span></p>
-                    {/* <Button className="bg-yellow-600 block mb-2">Change date</Button>
-                    <Button className="bg-red-600 block">Cancel</Button> */}
                 </div>
             </div>
-            {typeof equipment !== "string" && <Equipment {...equipment} />}
         </div>
     );
 }

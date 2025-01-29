@@ -39,7 +39,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     const user = await User.create({ email, password: hash });
     const token = createUserToken(user._id);
 
-    res.status(200).json({ email, admin: user.admin, token });
+    res.status(200).json({ _id: user._id, email, admin: user.admin, token });
 }
 
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -68,5 +68,5 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = createUserToken(user._id);
-    res.status(200).json({ email, admin: user.admin, token });
+    res.status(200).json({ _id: user._id, email, admin: user.admin, token });
 }

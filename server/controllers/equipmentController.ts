@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Equipment from "../models/Equipment";
+import Reservation from "../models/Reservation";
 
 type EquipmentFormData = {
     name: string;
@@ -105,6 +106,8 @@ export const deleteEquipment = async (req: Request, res: Response): Promise<void
         if (!equipment) {
             throw new Error("not found");
         }
+
+        await Reservation.deleteMany({ equipment: equipment._id });
         res.status(200).json({});
     }
     catch (err) {

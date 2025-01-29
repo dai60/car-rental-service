@@ -3,6 +3,15 @@ type Timestamps = {
     updatedAt: string;
 }
 
+export type ClassName = {
+    className?: string;
+}
+
+export type UserData = {
+    _id: string;
+    email: string;
+}
+
 export type EquipmentData = {
     _id: string;
     name: string;
@@ -14,5 +23,7 @@ export type EquipmentData = {
 export type ReservationData = {
     _id: string;
     date: string;
+    status: "pending" | "accepted" | "rejected" | "ready";
+    user: string | UserData;
     equipment: string | EquipmentData;
 } & Timestamps;

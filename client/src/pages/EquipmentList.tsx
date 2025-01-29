@@ -54,13 +54,19 @@ const EquipmentList = () => {
 
     return (
         <div className="mx-auto w-full px-8">
-            {data.map(equipment => (
-                <Link to={`/equipment/${equipment._id}`}>
-                    <Equipment className="mb-4 cursor-pointer hover:scale-105 transition-transform" {...equipment} />
-                </Link>
-            ))}
+            <div className="mb-8">
+                <h1 className="text-2xl font-semibold mb-4">All Equipment</h1>
+                {data.map(equipment => (
+                    <Link to={`/equipment/${equipment._id}`}>
+                        <Equipment className="mb-4 cursor-pointer hover:scale-105 transition-transform" {...equipment} />
+                    </Link>
+                ))}
+            </div>
             {user?.admin && (
-                <EquipmentForm buttonText="Save" handleSubmit={addNewEquipment} error={formError}/>
+                <div>
+                    <h1 className="text-2xl font-semibold mb-4">Add New Equipment</h1>
+                    <EquipmentForm buttonText="Save" handleSubmit={addNewEquipment} error={formError}/>
+                </div>
             )}
         </div>
     );

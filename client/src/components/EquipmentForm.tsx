@@ -1,4 +1,5 @@
 import { useId, useRef } from "react";
+import Button from "./Button";
 
 type EquipmentFormProps = {
     buttonText: string;
@@ -27,7 +28,7 @@ const EquipmentForm = ({ buttonText, error, handleSubmit, defaultValues }: Equip
 
     return (
         <form
-            className="w-full border-2 border-zinc-50 mt-8 p-4"
+            className="w-full border-2 border-zinc-50 p-4"
             onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit(nameRef.current?.value, descriptionRef.current?.value, priceRef.current?.valueAsNumber, visibilityRef.current?.value);
@@ -44,7 +45,7 @@ const EquipmentForm = ({ buttonText, error, handleSubmit, defaultValues }: Equip
                 <option className="bg-black" value="public">Public</option>
             </select>
             {error && <p className="text-red-500 text-semibold">{error}</p>}
-            <button className="block bg-yellow-600 text-lg rounded-md w-32 py-1 mt-4 cursor-pointer hover:opacity-80 transition-opacity">{buttonText}</button>
+            <Button className="block bg-yellow-600 mt-4">{buttonText}</Button>
         </form>
     );
 }

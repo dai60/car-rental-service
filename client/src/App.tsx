@@ -9,6 +9,7 @@ import AuthRoute from "./components/AuthRoute";
 import EquipmentList, { equipmentListLoader } from "./pages/EquipmentList";
 import EquipmentDetails, { equipmentDetailsLoader } from "./pages/EquipmentDetails";
 import UserReservations, { userReservationsLoader } from "./pages/UserReservations";
+import ReservationDetails, { reservationDetailsLoader } from "./pages/ReservationDetails";
 
 function App() {
     return (
@@ -54,7 +55,12 @@ function Router() {
                 {
                     path: "/reservations",
                     element: <AuthRoute element={<UserReservations />} />,
-                    loader: userReservationsLoader(user?.token),
+                    loader: userReservationsLoader(user?.token, user?.admin),
+                },
+                {
+                    path: "/reservations/:id",
+                    element: <AuthRoute element={<ReservationDetails />} />,
+                    loader: reservationDetailsLoader(user?.token),
                 },
             ],
         }],

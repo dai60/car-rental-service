@@ -16,7 +16,7 @@ const Header = () => {
                             (<span className="text-zinc-400">(user)</span>)}
                         </span>
                         <Link to="/reservations" className="hover:opacity-80 transition-opacity me-4">
-                            My Reservations
+                            View Reservations
                         </Link>
                         <button
                             onClick={() => {

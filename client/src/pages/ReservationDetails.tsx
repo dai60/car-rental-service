@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, Navigate, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
+import { Link, LoaderFunctionArgs, Navigate, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import Reservation from "../components/Reservation";
 import { ReservationData } from "../utilities";
 import { useAuth } from "../context/Auth";
@@ -6,6 +6,7 @@ import Button from "../components/Button";
 import { useRef } from "react";
 import Section from "../components/Section";
 import Equipment from "../components/Equipment";
+import ReservationForm from "../components/ReservationForm";
 
 export const reservationDetailsLoader = (token?: string) => {
     return async ({ params }: LoaderFunctionArgs) => {
@@ -55,6 +56,25 @@ const ReservationDetails = () => {
         }
     }
 
+    const changeDate = async (date?: string) => {
+        const res = await fetch(`/api/reservation/date/${data._id}`, {
+            headers: {
+                "Authorization": `Bearer ${user?.token}`,
+                "Content-Type": "application/json",
+            },
+            method: "PATCH",
+            body: JSON.stringify({ date }),
+        });
+        const json = await res.json();
+
+        if (!res.ok) {
+            console.error(json.error);
+        }
+        else {
+            revalidator.revalidate();
+        }
+    }
+
     const changeStatus = async (status?: string) => {
         const res = await fetch(`/api/reservation/status/${data._id}`, {
             headers: {
@@ -83,8 +103,12 @@ const ReservationDetails = () => {
             {data.equipment && typeof data.equipment !== "string" &&
                 <Section
                     title="Equipment"
-                    element={<Equipment className="mb-4" {...data.equipment} />} />}
-
+                    element={(
+                        <Link to={`/equipment/${data.equipment._id}`}>
+                            <Equipment className="mb-4 hover:scale-105 transition-transform" {...data.equipment} />
+                        </Link>
+                    )} />
+            }
             <Section
                 title="Change Details"
                 element={user.admin ? (
@@ -101,7 +125,10 @@ const ReservationDetails = () => {
                         <Button className="bg-yellow-600">Change status</Button>
                     </form>
                 ) : (
-                    <Button onClick={cancelReservation} className="bg-red-600">Cancel</Button>
+                    <ReservationForm
+                        buttonText="Change Date"
+                        handleSubmit={changeDate}
+                        handleCancel={cancelReservation}/>
                 )}/>
         </div>
     );

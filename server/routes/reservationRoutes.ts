@@ -12,6 +12,7 @@ reservationRoutes.get("/:id", authMiddleware, controller.getReservation);
 
 reservationRoutes.post("/", authMiddleware, isUser, controller.createReservation);
 
+reservationRoutes.patch("/date/:id", authMiddleware, isUser, controller.changeReservationDate);
 reservationRoutes.patch("/status/:id", authMiddleware, isAdmin, controller.changeReservationStatus);
 
 reservationRoutes.delete("/:id", authMiddleware, isUser, controller.cancelReservation);

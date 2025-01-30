@@ -122,7 +122,7 @@ const EquipmentDetails = () => {
                     <>
                         {reservations.map(reservation => (
                             <Link key={reservation._id} to={`/reservations/${reservation._id}`} >
-                                <Reservation className="mb-4 hover:scale-[102%] transition-transform" {...reservation} />
+                                <Reservation className="mb-4 hover:scale-105 transition-transform" {...reservation} />
                             </Link>
                         ))}
                     </>
@@ -130,7 +130,7 @@ const EquipmentDetails = () => {
             {user && !user.admin && (
                 <Section
                     title="Create Reservation"
-                    element={<ReservationForm handleSubmit={createReservation} />} />
+                    element={<ReservationForm buttonText="Reserve" handleSubmit={createReservation} />} />
             )}
         </div>
     );

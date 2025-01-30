@@ -4,10 +4,12 @@ import Calendar from "./Calendar";
 import { format } from "date-fns";
 
 type ReservationFormProps = {
+    buttonText: string;
     handleSubmit: (date?: string) => Promise<void>;
+    handleCancel?: () => void;
 }
 
-const ReservationForm = ({ handleSubmit }: ReservationFormProps) => {
+const ReservationForm = ({ buttonText, handleSubmit, handleCancel }: ReservationFormProps) => {
     const [date, setDate] = useState<Date | undefined>(undefined);
 
     return (
@@ -18,8 +20,9 @@ const ReservationForm = ({ handleSubmit }: ReservationFormProps) => {
                 handleSubmit(date ? format(date, "yyyy-MM-dd") : undefined);
             }}>
             <p className="block text-sm mb-1">Reservation date:</p>
-            <Calendar className="w-fit h-fit mb-2" onSelect={setDate} />
-            <Button className="bg-yellow-600">Reserve</Button>
+            <Calendar className="w-fit h-fit mb-4" onSelect={setDate} />
+            <Button submit={true} className="bg-yellow-600 me-2">{buttonText}</Button>
+            {handleCancel && <Button onClick={handleCancel} className="bg-red-600">Cancel</Button>}
         </form>
     );
 }

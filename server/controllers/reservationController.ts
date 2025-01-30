@@ -88,6 +88,28 @@ export const createReservation = async (req: Request, res: Response): Promise<vo
     }
 }
 
+export const changeReservationDate = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
+    const { date } = req.body;
+
+    try {
+        const reservation = await Reservation.findById(id);
+        if (!reservation) {
+            res.sendStatus(404);
+        }
+        else if (!reservation.user._id.equals(req.user?.id)) {
+            res.sendStatus(401);
+        }
+        else {
+            const updated = await Reservation.findByIdAndUpdate(id, { date });
+            res.status(200).json(reservation);
+        }
+    }
+    catch (err) {
+        res.sendStatus(500);
+    }
+}
+
 export const changeReservationStatus = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id;
     const { status } = req.body;
@@ -98,7 +120,12 @@ export const changeReservationStatus = async (req: Request, res: Response): Prom
 
     try {
         const reservation = await Reservation.findByIdAndUpdate(id, { status });
-        res.status(200).json(reservation);
+        if (!reservation) {
+            res.sendStatus(404);
+        }
+        else {
+            res.status(200).json(reservation);
+        }
     }
     catch (err) {
         res.sendStatus(500);

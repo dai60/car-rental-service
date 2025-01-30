@@ -12,8 +12,13 @@ const reservationSchema = new Schema({
         ref: "User",
     },
     date: {
-        type: Date,
-        required: true,
+        start: {
+            type: Date,
+            required: true,
+        },
+        end: {
+            type: Date,
+        }
     },
     status: {
         type: String,

@@ -1,6 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { dbConnect, dbDisconnect } from "./setup";
-import { faker } from "@faker-js/faker";
+import { faker, fakerAF_ZA } from "@faker-js/faker";
 import request from "supertest";
 import app from "../app";
 import User from "../models/User";
@@ -17,6 +17,14 @@ afterAll(async () => {
 afterEach(async () => {
     vi.clearAllMocks();
 });
+
+function fakeDate() {
+    const start = faker.date.soon({ days: 10 });
+    return {
+        start,
+        end: faker.date.soon({ days: 10, refDate: start }),
+    }
+}
 
 describe("/api/reservation", () => {
     let adminId: string;
@@ -56,7 +64,7 @@ describe("/api/reservation", () => {
 
         const [userId, userToken] = await newUser();
 
-        const date = faker.date.future();
+        const date = fakeDate();
         const res = await request(app)
             .post("/api/reservation")
             .send({ equipment: equipmentId, date })
@@ -69,7 +77,8 @@ describe("/api/reservation", () => {
         expect(reservation).toBeTruthy();
         expect(reservation?.user.equals(userId)).toBeTruthy();
         expect(reservation?.equipment.equals(equipmentId)).toBeTruthy();
-        expect(reservation?.date).toStrictEqual(date);
+        expect(reservation?.date?.start).toStrictEqual(date.start);
+        expect(reservation?.date?.end).toStrictEqual(date.end);
         expect(reservation?.status).toBe("pending");
     });
 
@@ -78,14 +87,13 @@ describe("/api/reservation", () => {
 
         const [userId, userToken] = await newUser();
 
-        const date = faker.date.past();
         const res = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date })
+            .send({ equipment: equipmentId, date: { start: faker.date.past() } })
             .set("Authorization", userToken);
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe("can't make a reservation in the past");
+        expect(res.body.error).toBe("reservation start can't be in the past");
         expect(Reservation.create).not.toHaveBeenCalledOnce();
     });
 
@@ -94,20 +102,29 @@ describe("/api/reservation", () => {
 
         const [userId, userToken] = await newUser();
 
-        const date = faker.date.soon({ days: 10 });
+        const start = faker.date.soon({ days: 10 });
+
         const first = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date })
+            .send({ equipment: equipmentId, date: { start } })
             .set("Authorization", userToken);
 
         const second = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date })
+            .send({ equipment: equipmentId, date: { start } })
+            .set("Authorization", userToken);
+
+        const third = await request(app)
+            .post("/api/reservation")
+            .send({ equipment: equipmentId, date: { start, end: faker.date.soon({ days: 10, refDate: start }) } })
             .set("Authorization", userToken);
 
         expect(first.status).toBe(200);
         expect(second.status).toBe(400);
-        expect(second.body.error).toBe("reservation already exists");
+        expect(second.body.error).toBe("date already reserved");
+        expect(third.status).toBe(400);
+        expect(third.body.error).toBe("date already reserved");
+
         expect(Reservation.create).toHaveBeenCalledOnce();
     });
 
@@ -115,7 +132,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const user = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: faker.date.soon({ days: 10 }) })
+            .send({ equipment: equipmentId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const accepted = await request(app)
@@ -133,7 +150,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const user = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: faker.date.future() })
+            .send({ equipment: equipmentId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const accepted = await request(app)
@@ -153,7 +170,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const post = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: faker.date.future() })
+            .send({ equipment: equipmentId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const deleted = await request(app)
@@ -175,7 +192,7 @@ describe("/api/reservation", () => {
 
         const post = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: faker.date.future() })
+            .send({ equipment: equipmentId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const wrongUserDeleted = await request(app)

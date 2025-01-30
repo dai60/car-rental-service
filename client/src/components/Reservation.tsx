@@ -26,7 +26,11 @@ const Reservation = ({ className = "", date, status, user }: ReservationProps) =
             <div className="flex p-4">
                 <div>
                     <h2 className="text-xl font-bold">Reservation</h2>
-                    <p>Date: {date.substring(0, 10)}</p>
+                    {date.end ? (
+                        <p>Date: {date.start.substring(0, 10)} to {date.end.substring(0, 10)}</p>
+                    ) : (
+                        <p>Date: {date.start.substring(0, 10)}</p>
+                    )}
                     {typeof user !== "string" && <p>Reserved by: {user.email}</p>}
                 </div>
                 <div className="ml-auto">

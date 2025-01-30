@@ -1,17 +1,18 @@
+import { addMonths, format } from "date-fns";
 import { useState } from "react";
 import Button from "./Button";
-import Calendar from "./Calendar";
-import { addMonths, format } from "date-fns";
+import Calendar, { CalendarDateState } from "./Calendar";
 
 type ReservationFormProps = {
     buttonText: string;
     error?: string;
-    handleSubmit: (date?: string) => Promise<void>;
+    defaultValue?: CalendarDateState
+    handleSubmit: (start?: string, end?: string) => Promise<void>;
     handleCancel?: () => Promise<void>;
 }
 
-const ReservationForm = ({ buttonText, error, handleSubmit, handleCancel }: ReservationFormProps) => {
-    const [date, setDate] = useState<Date | undefined>(undefined);
+const ReservationForm = ({ buttonText, error, defaultValue, handleSubmit, handleCancel }: ReservationFormProps) => {
+    const [date, setDate] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const minDate = new Date();
@@ -22,7 +23,9 @@ const ReservationForm = ({ buttonText, error, handleSubmit, handleCancel }: Rese
             onSubmit={async e => {
                 setIsSubmitting(true);
                 e.preventDefault();
-                await handleSubmit(date ? format(date, "yyyy-MM-dd") : undefined);
+                await handleSubmit(
+                    date[0] ? format(date[0], "yyyy-MM-dd") : undefined,
+                    date[1] ? format(date[1], "yyyy-MM-dd") : undefined);
                 setIsSubmitting(false);
             }}>
             <p className="block text-sm mb-1">Reservation date:</p>
@@ -30,7 +33,10 @@ const ReservationForm = ({ buttonText, error, handleSubmit, handleCancel }: Rese
                 className="w-fit h-fit mb-1"
                 min={minDate}
                 max={maxDate}
+                defautValue={defaultValue}
                 onSelect={setDate} />
+            <p className="text-sm">From: {date[0] ? format(date[0], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
+            <p className="text-sm mb-1">To: {date[1] ? format(date[1], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
             {error && <p className="text-red-600 font-semibold">{error}</p>}
             <div className="mt-4">
                 <Button submit={true} disabled={isSubmitting} className="bg-yellow-600 me-2">{buttonText}</Button>

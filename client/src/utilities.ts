@@ -24,7 +24,10 @@ export type ReservationStatus = "pending" | "accepted" | "rejected" | "ready";
 
 export type ReservationData = {
     _id: string;
-    date: string;
+    date: {
+        start: string;
+        end?: string;
+    }
     status: ReservationStatus;
     user: string | UserData;
     equipment: string | EquipmentData;

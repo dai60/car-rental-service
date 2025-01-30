@@ -57,7 +57,7 @@ const ReservationDetails = () => {
         }
     }
 
-    const changeDate = async (date?: string) => {
+    const changeDate = async (start?: string, end?: string) => {
         setFormError(undefined);
         const res = await fetch(`/api/reservation/date/${data._id}`, {
             headers: {
@@ -65,7 +65,7 @@ const ReservationDetails = () => {
                 "Content-Type": "application/json",
             },
             method: "PATCH",
-            body: JSON.stringify({ date }),
+            body: JSON.stringify({ start, end }),
         });
         const json = await res.json();
 
@@ -131,6 +131,7 @@ const ReservationDetails = () => {
                     <ReservationForm
                         buttonText="Change Date"
                         error={formError}
+                        defaultValue={[new Date(data.date.start), data.date.end ? new Date(data.date.end) : undefined]}
                         handleSubmit={changeDate}
                         handleCancel={cancelReservation}/>
                 )}/>

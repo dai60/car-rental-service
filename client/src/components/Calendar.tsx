@@ -1,16 +1,20 @@
-import { addDays, addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, getDate, isSameDay, startOfMonth, startOfWeek, subMonths } from "date-fns";
-import { useState } from "react";
+import { addDays, addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, getDate, isAfter, isBefore, isSameDay, isSameMonth, isWithinInterval, startOfMonth, startOfWeek, subMonths } from "date-fns";
+import { useEffect, useState } from "react";
 import { ClassName } from "../utilities";
+
+export type CalendarDateState = [Date | undefined, Date | undefined];
 
 type CalendarProps = {
     min: Date,
     max: Date,
-    onSelect: (date: Date) => void;
+    onSelect: (date: CalendarDateState) => void;
+    defautValue?: CalendarDateState;
 } & ClassName;
 
-const Calendar = ({ min, max, className = "", onSelect }: CalendarProps) => {
-    const [date, setDate] = useState(new Date());
-    const [selected, setSelected] = useState<Date | undefined>(undefined);
+const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarProps) => {
+    const [date, setDate] = useState(defautValue && defautValue[0] ? defautValue[0] : addDays(new Date(), 1));
+    const [selected, setSelected] = useState<CalendarDateState>(defautValue ?? [undefined, undefined]);
+    const [hover, setHover] = useState<Date | undefined>(undefined);
 
     const start = startOfWeek(startOfMonth(date));
     const end = endOfWeek(endOfMonth(date));
@@ -39,11 +43,9 @@ const Calendar = ({ min, max, className = "", onSelect }: CalendarProps) => {
         }
     }
 
-    const handleDateSelect = (date: Date) => {
-        setSelected(date);
-        setDate(date);
-        onSelect(date);
-    }
+    useEffect(() => {
+        onSelect(selected);
+    }, [selected]);
 
     return (
         <div className={`border-2 border-zinc-50 rounded-md ${className}`}>
@@ -60,31 +62,48 @@ const Calendar = ({ min, max, className = "", onSelect }: CalendarProps) => {
                     changeMonth(1);
                 }} className="px-4 py-1 cursor-pointer">&gt;</button>
             </div>
-            <div className="grid grid-cols-7 grid-rows-7 text-sm">
+            <div className="grid grid-cols-7 grid-rows-7 text-sm" onMouseLeave={() => setHover(undefined)}>
                 {weekDays.map(day => (
                     <div key={day} className="px-2 py-1 text-center font-semibold border text-zinc-400 border-zinc-50">{day}</div>
                 ))}
                 {days.map((day, index) => {
-                    const isDisabled = day.getTime() < min.getTime() || day.getTime() > max.getTime();
-                    const isSelected = day.getTime() === selected?.getTime();
-                    const otherMonth = day.getMonth() !== date.getMonth();
+                    const isDisabled = isBefore(day, min) || isAfter(day, max);
+                    const isSelected = selected[0] && (
+                        (isSameDay(selected[0], day)) ||
+                        (selected[1] && isWithinInterval(day, { start: selected[0], end: selected[1] }))
+                    );
+
+                    const isHover = hover && (
+                        isSameDay(hover, day) ||
+                        (selected[0] && !selected[1] && isWithinInterval(day, { start: selected[0], end: hover }))
+                    );
+
+                    const otherMonth = !isSameMonth(day, date);
 
                     const cursor = isDisabled ? "cursor-default" : "cursor-pointer";
-                    const hover = !isDisabled && !isSelected ? "hover:bg-green-800" : "";
-
                     const color = isDisabled ? "brightness-50" :
                         isSelected ? "bg-green-600" :
+                        isHover ? "bg-green-800" :
                         otherMonth ? "brightness-75" : "text-zinc-50";
 
                     return (
                         <button
                             key={index}
                             tabIndex={0}
-                            className={`px-2 py-1 text-center font-semibold border border-zinc-50 ${cursor} ${color} ${hover}`}
+                            className={`px-2 py-1 text-center font-semibold border border-zinc-50 ${cursor} ${color}`}
+                            onMouseEnter={() => {
+                                setHover(day);
+                            }}
                             onClick={e => {
                                 e.preventDefault();
                                 if (!isDisabled) {
-                                    handleDateSelect(day);
+                                    setSelected(prev => {
+                                        if (prev[0] && !prev[1]) {
+                                            return isAfter(day, prev[0]) ? [prev[0], day] : [day, prev[0]];
+                                        }
+                                        else return [day, undefined];
+                                    })
+                                    setDate(day);
                                 }
                             }}>
                             {getDate(day)}

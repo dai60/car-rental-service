@@ -78,7 +78,7 @@ const EquipmentDetails = () => {
         }
     }
 
-    const createReservation = async (date?: string) => {
+    const createReservation = async (start?: string, end?: string) => {
         setFormError(undefined);
         const res = await fetch(`/api/reservation`, {
             method: "POST",
@@ -88,7 +88,7 @@ const EquipmentDetails = () => {
             },
             body: JSON.stringify({
                 equipment: equipment._id,
-                date,
+                date: { start, end },
             }),
         });
 

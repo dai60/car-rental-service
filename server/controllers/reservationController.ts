@@ -1,5 +1,18 @@
 import { Request, Response } from "express";
 import Reservation from "../models/Reservation";
+import { FormError } from "../utilities";
+
+async function validateDate(date: Date, user: string, equipment: string) {
+    const now = new Date();
+    if (date < now) {
+        throw new FormError("can't make a reservation in the past");
+    }
+
+    const existing = await Reservation.find({ user, equipment, date });
+    if (existing.length !== 0) {
+        throw new FormError("reservation already exists");
+    }
+}
 
 export const getUserReservations = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -71,27 +84,42 @@ export const getReservationsFor = async (req: Request, res: Response): Promise<v
         res.status(200).json(reservations);
     }
     catch (err) {
-        res.status(500).json({ error: "internal server error" });
+        res.sendStatus(500);
     }
 }
 
 export const createReservation = async (req: Request, res: Response): Promise<void> => {
     const user = req.user?.id;
-    const { equipment, date } = req.body;
+    if (!user) {
+        res.sendStatus(500);
+        return;
+    }
 
+    const { equipment, date } = req.body;
     try {
+        await validateDate(new Date(date), user.toString(), equipment);
         const reservation = await Reservation.create({ user, equipment, date });
         res.status(200).json(reservation);
     }
     catch (err) {
-        res.sendStatus(500);
+        if (err instanceof FormError) {
+            res.status(400).send({ error: err.message });
+        }
+        else {
+            res.sendStatus(500);
+        }
     }
 }
 
 export const changeReservationDate = async (req: Request, res: Response): Promise<void> => {
+    const user = req.user?.id;
+    if (!user) {
+        res.sendStatus(500);
+        return;
+    }
+
     const id = req.params.id;
     const { date } = req.body;
-
     try {
         const reservation = await Reservation.findById(id);
         if (!reservation) {
@@ -101,24 +129,29 @@ export const changeReservationDate = async (req: Request, res: Response): Promis
             res.sendStatus(401);
         }
         else {
+            await validateDate(new Date(date), user.toString(), reservation.equipment._id.toString());
             const updated = await Reservation.findByIdAndUpdate(id, { date });
-            res.status(200).json(reservation);
+            res.status(200).json(updated);
         }
     }
     catch (err) {
-        res.sendStatus(500);
+        if (err instanceof FormError) {
+            res.status(400).json({ error: err.message });
+        }
+        else {
+            res.sendStatus(500);
+        }
     }
 }
 
 export const changeReservationStatus = async (req: Request, res: Response): Promise<void> => {
     const id = req.params.id;
     const { status } = req.body;
-    if (!["pending", "accepted", "rejected", "ready"].includes(status)) {
-        res.status(400).json({ error: "invalid status field" });
-        return;
-    }
-
     try {
+        if (!["pending", "accepted", "rejected", "ready"].includes(status)) {
+            throw new FormError("invalid status field");
+        }
+
         const reservation = await Reservation.findByIdAndUpdate(id, { status });
         if (!reservation) {
             res.sendStatus(404);
@@ -128,7 +161,12 @@ export const changeReservationStatus = async (req: Request, res: Response): Prom
         }
     }
     catch (err) {
-        res.sendStatus(500);
+        if (err instanceof FormError) {
+            res.status(400).json({ error: err.message });
+        }
+        else {
+            res.sendStatus(500);
+        }
     }
 }
 

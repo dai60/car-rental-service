@@ -3,7 +3,7 @@ import Reservation from "../components/Reservation";
 import { ReservationData } from "../utilities";
 import { useAuth } from "../context/Auth";
 import Button from "../components/Button";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Section from "../components/Section";
 import Equipment from "../components/Equipment";
 import ReservationForm from "../components/ReservationForm";
@@ -35,6 +35,7 @@ const ReservationDetails = () => {
     const navigate = useNavigate();
     const revalidator = useRevalidator();
 
+    const [formError, setFormError] = useState<string | undefined>(undefined);
     const statusRef = useRef<HTMLSelectElement>(null);
 
     if (!user) {
@@ -57,6 +58,7 @@ const ReservationDetails = () => {
     }
 
     const changeDate = async (date?: string) => {
+        setFormError(undefined);
         const res = await fetch(`/api/reservation/date/${data._id}`, {
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -68,7 +70,7 @@ const ReservationDetails = () => {
         const json = await res.json();
 
         if (!res.ok) {
-            console.error(json.error);
+            setFormError(json.error);
         }
         else {
             revalidator.revalidate();
@@ -76,6 +78,7 @@ const ReservationDetails = () => {
     }
 
     const changeStatus = async (status?: string) => {
+        setFormError(undefined);
         const res = await fetch(`/api/reservation/status/${data._id}`, {
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -87,7 +90,7 @@ const ReservationDetails = () => {
         const json = await res.json();
 
         if (!res.ok) {
-            console.error(json.error);
+            setFormError(json.error);
         }
         else {
             revalidator.revalidate();
@@ -122,11 +125,12 @@ const ReservationDetails = () => {
                             <option value="rejected">Rejected</option>
                             <option value="ready">Ready</option>
                         </select>
-                        <Button className="bg-yellow-600">Change status</Button>
+                        <Button className="bg-yellow-600">Change Status</Button>
                     </form>
                 ) : (
                     <ReservationForm
                         buttonText="Change Date"
+                        error={formError}
                         handleSubmit={changeDate}
                         handleCancel={cancelReservation}/>
                 )}/>

@@ -73,11 +73,49 @@ describe("/api/reservation", () => {
         expect(reservation?.status).toBe("pending");
     });
 
+    it("user can't create reservation in the past", async () => {
+        vi.spyOn(Reservation, "create");
+
+        const [userId, userToken] = await newUser();
+
+        const date = faker.date.past();
+        const res = await request(app)
+            .post("/api/reservation")
+            .send({ equipment: equipmentId, date })
+            .set("Authorization", userToken);
+
+        expect(res.status).toBe(400);
+        expect(res.body.error).toBe("can't make a reservation in the past");
+        expect(Reservation.create).not.toHaveBeenCalledOnce();
+    });
+
+    it("user can't create multiple reservations in the same day", async () => {
+        vi.spyOn(Reservation, "create");
+
+        const [userId, userToken] = await newUser();
+
+        const date = faker.date.soon({ days: 10 });
+        const first = await request(app)
+            .post("/api/reservation")
+            .send({ equipment: equipmentId, date })
+            .set("Authorization", userToken);
+
+        const second = await request(app)
+            .post("/api/reservation")
+            .send({ equipment: equipmentId, date })
+            .set("Authorization", userToken);
+
+        expect(first.status).toBe(200);
+        expect(second.status).toBe(400);
+        expect(second.body.error).toBe("reservation already exists");
+        expect(Reservation.create).toHaveBeenCalledOnce();
+    });
+
     it("user can't change reservation status", async () => {
         const [userId, userToken] = await newUser();
         const user = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: faker.date.future() })
+            .send({ equipment: equipmentId, date: faker.date.soon({ days: 10 }) })
             .set("Authorization", userToken);
 
         const accepted = await request(app)

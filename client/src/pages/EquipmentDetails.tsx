@@ -79,6 +79,7 @@ const EquipmentDetails = () => {
     }
 
     const createReservation = async (date?: string) => {
+        setFormError(undefined);
         const res = await fetch(`/api/reservation`, {
             method: "POST",
             headers: {
@@ -93,7 +94,7 @@ const EquipmentDetails = () => {
 
         const json = await res.json();
         if (!res.ok) {
-            console.error(json.error);
+            setFormError(json.error);
         }
         else {
             navigate(`/reservations/${json._id}`);
@@ -130,7 +131,7 @@ const EquipmentDetails = () => {
             {user && !user.admin && (
                 <Section
                     title="Create Reservation"
-                    element={<ReservationForm buttonText="Reserve" handleSubmit={createReservation} />} />
+                    element={<ReservationForm buttonText="Reserve" error={formError} handleSubmit={createReservation} />} />
             )}
         </div>
     );

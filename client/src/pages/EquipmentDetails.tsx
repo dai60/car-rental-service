@@ -105,7 +105,7 @@ const EquipmentDetails = () => {
             <Section
                 title="Equipment Details"
                 element={<Equipment className="mb-4" {...equipment} />} />
-            {user?.admin ? (
+            {user?.admin && (
                 <Section
                     title="Edit Details"
                     element={<EquipmentForm
@@ -113,10 +113,6 @@ const EquipmentDetails = () => {
                         handleSubmit={updateEquipment}
                         handleDelete={deleteEquipment}
                         error={formError} />} />
-            ) : (
-                <Section
-                    title="Create Reservation"
-                    element={<ReservationForm handleSubmit={createReservation} />} />
             )}
             <Section
                 title="Reservations"
@@ -131,6 +127,11 @@ const EquipmentDetails = () => {
                         ))}
                     </>
                 )}/>
+            {user && !user.admin && (
+                <Section
+                    title="Create Reservation"
+                    element={<ReservationForm handleSubmit={createReservation} />} />
+            )}
         </div>
     );
 }

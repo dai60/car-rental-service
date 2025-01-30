@@ -1,35 +1,24 @@
-import { useId, useRef } from "react";
+import { useState } from "react";
 import Button from "./Button";
+import Calendar from "./Calendar";
+import { format } from "date-fns";
 
 type ReservationFormProps = {
     handleSubmit: (date?: string) => Promise<void>;
 }
 
 const ReservationForm = ({ handleSubmit }: ReservationFormProps) => {
-    const id = useId();
-
-    const dateId = id + "-date";
-    const date = new Date();
-    const now = date.toISOString().substring(0, 10);
-    if (date.getMonth() === 11) {
-        date.setMonth(0);
-    }
-    else {
-        date.setMonth(date.getMonth() + 1);
-    }
-    const max = date.toISOString().substring(0, 10);
-
-    const dateRef = useRef<HTMLInputElement>(null);
+    const [date, setDate] = useState<Date | undefined>(undefined);
 
     return (
         <form
             className="border-zinc-50 border-2 rounded-md p-4"
             onSubmit={(e) => {
                 e.preventDefault();
-                handleSubmit(dateRef.current?.value);
+                handleSubmit(date ? format(date, "yyyy-MM-dd") : undefined);
             }}>
-            <label className="block text-sm mb-1" htmlFor={dateId}>Reservation date:</label>
-            <input className="block mb-2 border border-zinc-50 [color-scheme:dark]" type="date" name="date" id={dateId} ref={dateRef} required min={now} max={max} defaultValue={now}/>
+            <p className="block text-sm mb-1">Reservation date:</p>
+            <Calendar className="w-fit h-fit mb-2" onSelect={setDate} />
             <Button className="bg-yellow-600">Reserve</Button>
         </form>
     );

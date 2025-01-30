@@ -48,8 +48,8 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
     }, [selected]);
 
     return (
-        <div className={`border-2 border-zinc-50 rounded-md ${className}`}>
-            <div className="flex justify-between items-center border border-zinc-50">
+        <div className={`border-2 border-primary rounded-md ${className}`}>
+            <div className="flex justify-between items-center border border-primary">
                 <button onClick={e => {
                     e.preventDefault();
                     changeMonth(-1);
@@ -64,7 +64,7 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
             </div>
             <div className="grid grid-cols-7 grid-rows-7 text-sm" onMouseLeave={() => setHover(undefined)}>
                 {weekDays.map(day => (
-                    <div key={day} className="px-2 py-1 text-center font-semibold border text-zinc-400 border-zinc-50">{day}</div>
+                    <div key={day} className="px-2 py-1 text-center font-semibold text-secondary border border-primary">{day}</div>
                 ))}
                 {days.map((day, index) => {
                     const isDisabled = isBefore(day, min) || isAfter(day, max);
@@ -82,15 +82,15 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
 
                     const cursor = isDisabled ? "cursor-default" : "cursor-pointer";
                     const color = isDisabled ? "brightness-50" :
-                        isSelected ? "bg-green-600" :
-                        isHover ? "bg-green-800" :
-                        otherMonth ? "brightness-75" : "text-zinc-50";
+                        isSelected ? "bg-ok" :
+                        isHover ? "bg-ok/50" :
+                        otherMonth ? "brightness-75" : "text-primary";
 
                     return (
                         <button
                             key={index}
                             tabIndex={0}
-                            className={`px-2 py-1 text-center font-semibold border border-zinc-50 ${cursor} ${color}`}
+                            className={`px-2 py-1 text-center font-semibold border border-primary ${cursor} ${color}`}
                             onMouseEnter={() => {
                                 setHover(day);
                             }}

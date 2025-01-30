@@ -30,12 +30,12 @@ const UserReservations = () => {
             <Section
                 title="Reservations"
                 element={data.length == 0 ? (
-                    <p className="text-zinc-400 text-center">There are no reservations.</p>
+                    <p className="text-secondary text-center">There are no reservations.</p>
                 ) : (
                     <div>
                         {data.map(reservation => (
                             <Link key={reservation._id} to={`/reservations/${reservation._id}`}>
-                                <Reservation className="mb-4 hover:scale-[102%] transition-transform" {...reservation} />
+                                <Reservation className="mb-4 hover:scale-105 transition-transform" {...reservation} />
                             </Link>
                         ))}
                     </div>

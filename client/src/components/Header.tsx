@@ -6,14 +6,14 @@ const Header = () => {
     const navigate = useNavigate();
 
     return (
-        <header className="bg-black">
+        <header className="bg-background-alt">
             <div className="flex flex-col sm:flex-row max-w-6xl mx-auto px-4 py-4 items-center justify-between">
-                <Link to="/" className="font-bold text-lg text-yellow-600">Equipment Rental Service</Link>
+                <Link to="/" className="font-bold text-lg text-accent">Equipment Rental Service</Link>
                 {user && (
                     <div className="flex flex-col items-center sm:flex-row gap-1 sm:gap-4 mt-2 sm:mt-0">
                         <span>{user.email} {user.admin ?
-                            (<span className="text-yellow-600">(admin)</span>) :
-                            (<span className="text-zinc-400">(user)</span>)}
+                            (<span className="text-accent">(admin)</span>) :
+                            (<span className="text-secondary">(user)</span>)}
                         </span>
                         <Link to="/reservations" className="hover:opacity-80 transition-opacity">
                             View Reservations

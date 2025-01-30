@@ -37,14 +37,14 @@ const ReservationForm = ({ buttonText, error, defaultValue, handleSubmit, handle
                 onSelect={setDate} />
             <p className="text-sm">From: {date[0] ? format(date[0], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
             <p className="text-sm mb-1">To: {date[1] ? format(date[1], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
-            {error && <p className="text-red-600 font-semibold">{error}</p>}
+            {error && <p className="text-error font-semibold">{error}</p>}
             <div className="mt-4">
                 <Button submit={true} disabled={isSubmitting} className="bg-yellow-600 me-2">{buttonText}</Button>
                 {handleCancel && <Button disabled={isSubmitting} onClick={async () => {
                     setIsSubmitting(true);
                     await handleCancel();
                     setIsSubmitting(false);
-                }} className="bg-red-600">Cancel</Button>}
+                }} className="bg-error">Cancel</Button>}
             </div>
         </form>
     );

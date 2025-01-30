@@ -119,13 +119,13 @@ const ReservationDetails = () => {
                         e.preventDefault();
                         changeStatus(statusRef.current?.value);
                     }}>
-                        <select name="status" className="bg-black px-2 py-1 me-2" ref={statusRef} defaultValue={data.status}>
+                        <select name="status" className="bg-background-secondary px-2 py-1 me-2" ref={statusRef} defaultValue={data.status}>
                             <option value="pending">Pending</option>
                             <option value="accepted">Accepted</option>
                             <option value="rejected">Rejected</option>
                             <option value="ready">Ready</option>
                         </select>
-                        <Button className="bg-yellow-600">Change Status</Button>
+                        <Button className="bg-accent">Change Status</Button>
                     </form>
                 ) : (
                     <ReservationForm

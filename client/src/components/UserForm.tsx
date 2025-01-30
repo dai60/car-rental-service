@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react";
+import Button from "./Button";
 
 type UserFormProps = {
     buttonText: string;
@@ -19,7 +20,7 @@ const UserForm = ({ handleSubmit, error, buttonText }: UserFormProps) => {
 
     return (
         <form
-            className="border-2 border-yellow-600 max-w-lg mx-auto p-4"
+            className="border-2 border-primary max-w-lg mx-auto p-4"
             onSubmit={e => {
                 setIsSubmitting(true);
                 e.preventDefault();
@@ -27,11 +28,11 @@ const UserForm = ({ handleSubmit, error, buttonText }: UserFormProps) => {
                 setIsSubmitting(false);
             }}>
             <label className="block text-sm mb-1" htmlFor={emailId}>E-Mail:</label>
-            <input className="bg-slate-600 w-full px-2 py-1" type="email" name="email" id={emailId} ref={emailRef} />
+            <input className="bg-background-secondary w-full px-2 py-1" type="email" name="email" id={emailId} ref={emailRef} />
             <label className="block text-sm mb-1" htmlFor={passwordId}>Password:</label>
-            <input className="bg-slate-600 w-full px-2 py-1" type="password" name="password" id={passwordId} ref={passwordRef} />
-            {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
-            <button className="cursor-pointer font-semibold bg-yellow-600 rounded-lg mt-4 px-4 py-2" disabled={isSubmitting}>{buttonText}</button>
+            <input className="bg-background-secondary w-full px-2 py-1" type="password" name="password" id={passwordId} ref={passwordRef} />
+            {error && <p className="text-error font-semibold mt-2">{error}</p>}
+            <Button className="bg-accent mt-4" disabled={isSubmitting}>{buttonText}</Button>
         </form>
     );
 }

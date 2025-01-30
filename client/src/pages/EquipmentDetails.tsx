@@ -118,7 +118,7 @@ const EquipmentDetails = () => {
             <Section
                 title="Reservations"
                 element={reservations.length === 0 ? (
-                    <p className="text-zinc-400 text-center">No reservations.</p>
+                    <p className="text-secondary text-center">No reservations.</p>
                 ) : (
                     <>
                         {reservations.map(reservation => (

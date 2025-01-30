@@ -9,10 +9,10 @@ const Home = () => {
 
     return (
         <div className="flex flex-col justify-center items-center text-center mx-auto">
-            <h1 className="text-yellow-600 font-bold text-5xl mb-8">Equipment Rental Service</h1>
+            <h1 className="text-accent font-bold text-5xl mb-8">Equipment Rental Service</h1>
             <div className="flex gap-3">
-                <Link className="w-36 bg-slate-600 hover:opacity-80 text-2xl font-semibold py-2 rounded-lg transition-opacity" to="/login">Log in</Link>
-                <Link className="w-36 bg-yellow-600 hover:opacity-80 text-2xl font-semibold py-2 rounded-lg transition-opacity" to="/signup">Sign up</Link>
+                <Link className="w-36 bg-background-secondary hover:opacity-80 text-2xl font-semibold py-2 rounded-lg transition-opacity" to="/login">Log in</Link>
+                <Link className="w-36 bg-accent hover:opacity-80 text-2xl font-semibold py-2 rounded-lg transition-opacity" to="/signup">Sign up</Link>
             </div>
         </div>
     );

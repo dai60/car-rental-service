@@ -8,21 +8,21 @@ const Reservation = ({ className = "", date, status, user }: ReservationProps) =
     let statusColor;
     switch (status) {
         case "pending":
-            statusColor = "text-zinc-400";
+            statusColor = "text-secondary";
             break;
         case "accepted":
-            statusColor = "text-zinc-50";
+            statusColor = "text-primary";
             break;
         case "rejected":
-            statusColor = "text-red-500";
+            statusColor = "text-error";
             break;
         case "ready":
-            statusColor = "text-green-500";
+            statusColor = "text-ok";
             break;
     }
 
     return (
-        <div className={"border-2 border-zinc-50 rounded-md " + className}>
+        <div className={"border-2 border-primary rounded-md " + className}>
             <div className="flex p-4">
                 <div>
                     <h2 className="text-xl font-bold">Reservation</h2>

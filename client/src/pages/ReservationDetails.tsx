@@ -5,7 +5,7 @@ import { useAuth } from "../context/Auth";
 import Button from "../components/Button";
 import { useRef, useState } from "react";
 import Section from "../components/Section";
-import Equipment from "../components/Equipment";
+import Car from "../components/Car";
 import ReservationForm from "../components/ReservationForm";
 
 export const reservationDetailsLoader = (token?: string) => {
@@ -103,12 +103,12 @@ const ReservationDetails = () => {
                 title="Reservation Details"
                 element={<Reservation className="mb-4" {...data} />} />
 
-            {data.equipment && typeof data.equipment !== "string" &&
+            {data.car && typeof data.car !== "string" &&
                 <Section
-                    title="Equipment"
+                    title="Car"
                     element={(
-                        <Link to={`/equipment/${data.equipment._id}`}>
-                            <Equipment className="mb-4 hover:scale-105 transition-transform" {...data.equipment} />
+                        <Link to={`/cars/${data.car._id}`}>
+                            <Car className="mb-4 hover:scale-105 transition-transform" {...data.car} />
                         </Link>
                     )} />
             }

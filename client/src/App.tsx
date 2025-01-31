@@ -6,9 +6,9 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRoute from "./components/AuthRoute";
-import EquipmentList, { equipmentListLoader } from "./pages/EquipmentList";
-import EquipmentDetails, { equipmentDetailsLoader } from "./pages/EquipmentDetails";
-import UserReservations, { userReservationsLoader } from "./pages/UserReservations";
+import CarList, { carListLoader } from "./pages/CarList";
+import CarDetails, { carDetailsLoader } from "./pages/CarDetails";
+import ReservationList, { reservationListLoader } from "./pages/ReservationList";
 import ReservationDetails, { reservationDetailsLoader } from "./pages/ReservationDetails";
 
 function App() {
@@ -43,19 +43,19 @@ function Router() {
                     element: <Signup />,
                 },
                 {
-                    path: "/equipment",
-                    element: <AuthRoute element={<EquipmentList />} />,
-                    loader: equipmentListLoader(user?.token),
+                    path: "/cars",
+                    element: <AuthRoute element={<CarList />} />,
+                    loader: carListLoader(user?.token),
                 },
                 {
-                    path: "/equipment/:id",
-                    element: <AuthRoute element={<EquipmentDetails />} />,
-                    loader: equipmentDetailsLoader(user?.token),
+                    path: "/cars/:id",
+                    element: <AuthRoute element={<CarDetails />} />,
+                    loader: carDetailsLoader(user?.token),
                 },
                 {
                     path: "/reservations",
-                    element: <AuthRoute element={<UserReservations />} />,
-                    loader: userReservationsLoader(user?.token, user?.admin),
+                    element: <AuthRoute element={<ReservationList />} />,
+                    loader: reservationListLoader(user?.token, user?.admin),
                 },
                 {
                     path: "/reservations/:id",

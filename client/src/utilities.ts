@@ -12,7 +12,7 @@ export type UserData = {
     email: string;
 }
 
-export type EquipmentData = {
+export type CarData = {
     _id: string;
     name: string;
     description?: string;
@@ -30,7 +30,7 @@ export type ReservationData = {
     }
     status: ReservationStatus;
     user: string | UserData;
-    equipment: string | EquipmentData;
+    car: string | CarData;
 } & Timestamps;
 
 export function delay(timeout: number): Promise<void> {

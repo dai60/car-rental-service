@@ -22,7 +22,7 @@ const Reservation = ({ className = "", date, status, user }: ReservationProps) =
     }
 
     return (
-        <div className={"border-2 border-primary rounded-md " + className}>
+        <div className={`border-2 ${status === "pending" || status === "rejected" ? "border-secondary/50" : "border-primary"} rounded-md ${className}`}>
             <div className="flex p-4">
                 <div>
                     <h2 className="text-xl font-bold">Reservation</h2>

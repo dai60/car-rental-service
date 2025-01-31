@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
-import Equipment from "../models/Equipment";
+import Car from "../models/Car";
 import Reservation from "../models/Reservation";
 import { FormError } from "../utilities";
 
-type EquipmentFormData = {
+type CarFormData = {
     name: string;
     description?: string;
     price: number;
     visibility: "draft" | "public";
 }
 
-function validateEquipmentData(body: any): EquipmentFormData {
+function validateCarData(body: any): CarFormData {
     const { name, description, price, visibility } = body;
 
     if (!name) {
@@ -38,37 +38,37 @@ function validateEquipmentData(body: any): EquipmentFormData {
     return { name, description, price, visibility };
 }
 
-export const getEquipment = async (req: Request, res: Response): Promise<void> => {
+export const getCar = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     try {
-        const equipment = await Equipment.findById(id);
-        if (!equipment) {
+        const car = await Car.findById(id);
+        if (!car) {
             res.sendStatus(404);
             return;
         }
-        res.status(200).json(equipment);
+        res.status(200).json(car);
     }
     catch (err) {
         res.sendStatus(500);
     }
 }
 
-export const getAllEquipment = async (req: Request, res: Response): Promise<void> => {
+export const getAllCars = async (req: Request, res: Response): Promise<void> => {
     const query = req.user?.admin ? {} : { visibility: "public" };
     try {
-        const equipment = await Equipment.find(query).sort({ updatedAt: -1 });
-        res.status(200).json(equipment);
+        const car = await Car.find(query).sort({ updatedAt: -1 });
+        res.status(200).json(car);
     }
     catch (err) {
         res.sendStatus(500);
     }
 }
 
-export const addNewEquipment = async (req: Request, res: Response): Promise<void> => {
+export const addNewCar = async (req: Request, res: Response): Promise<void> => {
     try {
-        const data = validateEquipmentData(req.body);
-        const equipment = await Equipment.create(data);
-        res.status(200).json(equipment);
+        const data = validateCarData(req.body);
+        const car = await Car.create(data);
+        res.status(200).json(car);
     }
     catch (err) {
         if (err instanceof FormError) {
@@ -80,16 +80,16 @@ export const addNewEquipment = async (req: Request, res: Response): Promise<void
     }
 }
 
-export const updateEquipment = async (req: Request, res: Response): Promise<void> => {
+export const updateCar = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
      try {
-        const data = validateEquipmentData(req.body);
-        const equipment = await Equipment.findByIdAndUpdate(id, data);
-        if (!equipment) {
+        const data = validateCarData(req.body);
+        const car = await Car.findByIdAndUpdate(id, data);
+        if (!car) {
             res.sendStatus(404);
             return;
         }
-        res.status(200).json(equipment);
+        res.status(200).json(car);
     }
     catch (err) {
         if (err instanceof FormError) {
@@ -101,7 +101,7 @@ export const updateEquipment = async (req: Request, res: Response): Promise<void
     }
 }
 
-export const deleteEquipment = async (req: Request, res: Response): Promise<void> => {
+export const deleteCar = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     if (!id) {
         res.sendStatus(500);
@@ -109,14 +109,14 @@ export const deleteEquipment = async (req: Request, res: Response): Promise<void
     }
 
     try {
-        const equipment = await Equipment.findByIdAndDelete(id);
-        if (!equipment) {
+        const car = await Car.findByIdAndDelete(id);
+        if (!car) {
             res.sendStatus(404);
             return;
         }
 
-        await Reservation.deleteMany({ equipment: equipment._id });
-        res.status(200).json(equipment);
+        await Reservation.deleteMany({ car: car._id });
+        res.status(200).json(car);
     }
     catch (err) {
         res.sendStatus(500);

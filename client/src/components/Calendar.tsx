@@ -39,8 +39,21 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
             setDate(prev => {
                 const next = addMonths(prev, 1);
                 return startOfMonth(next) > max ? prev : next;
-            })
+            });
         }
+    }
+
+    const handleClick = (day: Date) => {
+        setSelected(prev => {
+            if (prev[0] && !prev[1]) {
+                if (isSameDay(prev[0], day)) {
+                    return prev;
+                }
+                return isAfter(day, prev[0]) ? [prev[0], day] : [day, prev[0]];
+            }
+            else return [day, undefined];
+        })
+        setDate(day);
     }
 
     useEffect(() => {
@@ -62,10 +75,12 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
                     changeMonth(1);
                 }} className="px-4 py-1 cursor-pointer">&gt;</button>
             </div>
-            <div className="grid grid-cols-7 grid-rows-7 text-sm" onMouseLeave={() => setHover(undefined)}>
+            <div className="grid grid-cols-7 text-sm">
                 {weekDays.map(day => (
                     <div key={day} className="px-2 py-1 text-center font-semibold text-secondary border border-primary">{day}</div>
                 ))}
+            </div>
+            <div className="grid grid-cols-7 grid-rows-6 text-sm" onMouseLeave={() => setHover(undefined)}>
                 {days.map((day, index) => {
                     const isDisabled = isBefore(day, min) || isAfter(day, max);
                     const isSelected = selected[0] && (
@@ -91,19 +106,11 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
                             key={index}
                             tabIndex={0}
                             className={`px-2 py-1 text-center font-semibold border border-primary ${cursor} ${color}`}
-                            onMouseEnter={() => {
-                                setHover(day);
-                            }}
+                            onMouseEnter={() => setHover(day)}
                             onClick={e => {
                                 e.preventDefault();
                                 if (!isDisabled) {
-                                    setSelected(prev => {
-                                        if (prev[0] && !prev[1]) {
-                                            return isAfter(day, prev[0]) ? [prev[0], day] : [day, prev[0]];
-                                        }
-                                        else return [day, undefined];
-                                    })
-                                    setDate(day);
+                                    handleClick(day);
                                 }
                             }}>
                             {getDate(day)}

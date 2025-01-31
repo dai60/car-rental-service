@@ -39,7 +39,7 @@ const ReservationForm = ({ buttonText, error, defaultValue, handleSubmit, handle
             <p className="text-sm mb-1">To: {date[1] ? format(date[1], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
             {error && <p className="text-error font-semibold">{error}</p>}
             <div className="mt-4">
-                <Button submit={true} disabled={isSubmitting} className="bg-yellow-600 me-2">{buttonText}</Button>
+                <Button submit={true} disabled={isSubmitting} className="bg-accent me-2">{buttonText}</Button>
                 {handleCancel && <Button disabled={isSubmitting} onClick={async () => {
                     setIsSubmitting(true);
                     await handleCancel();

@@ -1,6 +1,6 @@
 import express from "express";
 import userRoutes from "./routes/userRoutes";
-import equipmentRoutes from "./routes/equipmentRoutes";
+import carRoutes from "./routes/carRoutes";
 import reservationRoutes from "./routes/reservationRoutes";
 
 const app = express();
@@ -11,7 +11,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use("/api/equipment", equipmentRoutes);
+app.use("/api/cars", carRoutes);
 app.use("/api/reservation", reservationRoutes);
 app.use("/api/user", userRoutes);
 

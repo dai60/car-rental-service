@@ -1,10 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const reservationSchema = new Schema({
-    equipment: {
+    car: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: "Equipment",
+        ref: "Car",
     },
     user: {
         type: Schema.Types.ObjectId,

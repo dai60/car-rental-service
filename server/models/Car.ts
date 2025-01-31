@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const equipmentSchema = new Schema({
+const carSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -19,5 +19,5 @@ const equipmentSchema = new Schema({
     },
 }, { timestamps: true });
 
-const Equipment = mongoose.model("Equipment", equipmentSchema);
-export default Equipment;
+const Car = mongoose.model("Car", carSchema);
+export default Car;

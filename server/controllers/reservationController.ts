@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import Reservation from "../models/Reservation";
 import { FormError } from "../utilities";
 
-async function validateDate(start: Date, end: Date | undefined, user: string, equipment: string, exclude?: string) {
+async function validateDate(start: Date, end: Date | undefined, user: string, car: string, exclude?: string) {
     if (end && isBefore(end, start)) {
         throw new FormError("reservation end can't be before start");
     }
@@ -13,7 +13,7 @@ async function validateDate(start: Date, end: Date | undefined, user: string, eq
         throw new FormError("reservation start can't be in the past");
     }
 
-    const existing = await Reservation.find({ user, equipment }).select({ date: 1 });
+    const existing = await Reservation.find({ user, car }).select({ date: 1 });
     for (const reservation of existing) {
         if (reservation._id.equals(exclude)) {
             continue;
@@ -47,7 +47,7 @@ export const getUserReservations = async (req: Request, res: Response): Promise<
         const reservations = await Reservation
             .find({ user: req.user?.id })
             .sort({ date: 1 })
-            .populate("equipment");
+            .populate("car");
 
         res.status(200).json(reservations);
     }
@@ -60,7 +60,7 @@ export const getReservation = async (req: Request, res: Response): Promise<void>
     try {
         const reservation = await Reservation
             .findById(req.params.id)
-            .populate("equipment")
+            .populate("car")
             .populate("user", "email");
 
         if (!reservation) {
@@ -85,7 +85,7 @@ export const getAllReservations = async (req: Request, res: Response): Promise<v
         const reservations = await Reservation
             .find({ })
             .sort({ date: 1 })
-            .populate("equipment")
+            .populate("car")
             .populate("user", "email");
         res.status(200).json(reservations);
     }
@@ -102,7 +102,7 @@ export const getReservationsFor = async (req: Request, res: Response): Promise<v
 
     const id = req.params.id;
     const query = req.user.admin ?
-        { equipment: id } : { user: req.user.id, equipment: id };
+        { car: id } : { user: req.user.id, car: id };
 
     try {
         const reservations = await Reservation
@@ -123,15 +123,15 @@ export const createReservation = async (req: Request, res: Response): Promise<vo
         return;
     }
 
-    const { equipment, date } = req.body;
+    const { car, date } = req.body;
     try {
         await validateDate(
             new Date(date.start),
             date.end ? new Date(date.end) : undefined,
             user.toString(),
-            equipment
+            car
         );
-        const reservation = await Reservation.create({ user, equipment, date });
+        const reservation = await Reservation.create({ user, car, date });
         res.status(200).json(reservation);
     }
     catch (err) {
@@ -166,7 +166,7 @@ export const changeReservationDate = async (req: Request, res: Response): Promis
                 new Date(start),
                 end ? new Date(end) : undefined,
                 user.toString(),
-                reservation.equipment._id.toString(),
+                reservation.car._id.toString(),
                 reservation._id.toString(),
             );
 

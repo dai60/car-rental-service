@@ -1,14 +1,14 @@
 import { formatDistanceToNow } from "date-fns";
 import Placeholder from "../public/240x120.svg";
-import { EquipmentData } from "../utilities";
+import { CarData } from "../utilities";
 
-type EquipmentProps = {
+type CarProps = {
     className?: string;
-} & EquipmentData;
+} & CarData;
 
-const Equipment = ({ className = "", name, description, price, createdAt, updatedAt }: EquipmentProps) => {
+const Car = ({ className = "", name, description, price, visibility, createdAt, updatedAt }: CarProps) => {
     return (
-        <div className={"flex border-2 border-primary rounded-md " + className}>
+        <div className={`flex border-2 ${visibility === "public" ? "border-primary" : "border-secondary/50"} rounded-md ${className}`}>
             <img className="w-[240] min-h-full object-cover" src={Placeholder} alt={name} />
             <div className="p-4">
                 <h2 className="text-xl font-bold mb-1">{name}</h2>
@@ -21,4 +21,4 @@ const Equipment = ({ className = "", name, description, price, createdAt, update
     );
 }
 
-export default Equipment;
+export default Car;

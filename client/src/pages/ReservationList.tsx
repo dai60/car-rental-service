@@ -3,7 +3,7 @@ import { ReservationData } from "../utilities";
 import Reservation from "../components/Reservation";
 import Section from "../components/Section";
 
-export const userReservationsLoader = (token?: string, admin?: boolean) => {
+export const reservationListLoader = (token?: string, admin?: boolean) => {
     return async () => {
         const res = await fetch(`/api/reservation/${admin ? "admin" : "user"}`, {
             headers: { "Authorization": `Bearer ${token}` },
@@ -22,7 +22,7 @@ export const userReservationsLoader = (token?: string, admin?: boolean) => {
     }
 }
 
-const UserReservations = () => {
+const ReservationList = () => {
     const data = useLoaderData<ReservationData[]>();
 
     return (
@@ -44,4 +44,4 @@ const UserReservations = () => {
     );
 }
 
-export default UserReservations;
+export default ReservationList;

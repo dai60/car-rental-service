@@ -29,11 +29,11 @@ function fakeDate() {
 describe("/api/reservation", () => {
     let adminId: string;
     let adminToken: string;
-    let equipmentId: string;
+    let carId: string;
 
-    const equipment = {
-        name: faker.commerce.product(),
-        price: faker.number.float({ min: 0.99, max: 99999.99, fractionDigits: 2 }),
+    const car = {
+        name: faker.vehicle.vehicle(),
+        price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 }),
     };
 
     const newUser = async (admin: boolean = false): Promise<[string, string]> => {
@@ -52,11 +52,11 @@ describe("/api/reservation", () => {
         [adminId, adminToken] = await newUser(true);
 
         const post = await request(app)
-            .post("/api/equipment")
-            .send(equipment)
+            .post("/api/cars")
+            .send(car)
             .set("Authorization", adminToken);
 
-        equipmentId = post.body._id;
+        carId = post.body._id;
     });
 
     it("user create new reservation", async () => {
@@ -67,7 +67,7 @@ describe("/api/reservation", () => {
         const date = fakeDate();
         const res = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date })
+            .send({ car: carId, date })
             .set("Authorization", userToken);
 
         expect(res.status).toBe(200);
@@ -76,7 +76,7 @@ describe("/api/reservation", () => {
         const reservation = await Reservation.findById(res.body._id);
         expect(reservation).toBeTruthy();
         expect(reservation?.user.equals(userId)).toBeTruthy();
-        expect(reservation?.equipment.equals(equipmentId)).toBeTruthy();
+        expect(reservation?.car.equals(carId)).toBeTruthy();
         expect(reservation?.date?.start).toStrictEqual(date.start);
         expect(reservation?.date?.end).toStrictEqual(date.end);
         expect(reservation?.status).toBe("pending");
@@ -89,7 +89,7 @@ describe("/api/reservation", () => {
 
         const res = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: { start: faker.date.past() } })
+            .send({ car: carId, date: { start: faker.date.past() } })
             .set("Authorization", userToken);
 
         expect(res.status).toBe(400);
@@ -106,17 +106,17 @@ describe("/api/reservation", () => {
 
         const first = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: { start } })
+            .send({ car: carId, date: { start } })
             .set("Authorization", userToken);
 
         const second = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: { start } })
+            .send({ car: carId, date: { start } })
             .set("Authorization", userToken);
 
         const third = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: { start, end: faker.date.soon({ days: 10, refDate: start }) } })
+            .send({ car: carId, date: { start, end: faker.date.soon({ days: 10, refDate: start }) } })
             .set("Authorization", userToken);
 
         expect(first.status).toBe(200);
@@ -132,7 +132,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const user = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: fakeDate() })
+            .send({ car: carId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const accepted = await request(app)
@@ -150,7 +150,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const user = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: fakeDate() })
+            .send({ car: carId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const accepted = await request(app)
@@ -170,7 +170,7 @@ describe("/api/reservation", () => {
         const [userId, userToken] = await newUser();
         const post = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: fakeDate() })
+            .send({ car: carId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const deleted = await request(app)
@@ -192,7 +192,7 @@ describe("/api/reservation", () => {
 
         const post = await request(app)
             .post("/api/reservation")
-            .send({ equipment: equipmentId, date: fakeDate() })
+            .send({ car: carId, date: fakeDate() })
             .set("Authorization", userToken);
 
         const wrongUserDeleted = await request(app)

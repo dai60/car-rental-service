@@ -1,9 +1,9 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { dbConnect, dbDisconnect } from "./setup";
 import request from "supertest";
 import app from "../app";
 import User from "../models/User";
-import Equipment from "../models/Equipment";
+import Car from "../models/Car";
 import { faker } from "@faker-js/faker";
 
 beforeAll(async () => {
@@ -18,15 +18,15 @@ afterEach(async () => {
     vi.clearAllMocks();
 });
 
-function fakeEquipment() {
+function fakeCar() {
     return {
-        name: faker.commerce.productName(),
+        name: faker.vehicle.vehicle(),
         description: faker.commerce.productDescription(),
-        price: faker.number.float({ min: 0.99, max: 99999.99, fractionDigits: 2, }),
+        price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2, }),
     };
 }
 
-describe("/api/equipment", () => {
+describe("/api/cars", () => {
     let adminToken: string;
     let userToken: string;
 
@@ -45,46 +45,46 @@ describe("/api/equipment", () => {
         userToken = `Bearer ${userLogin.body.token}`;
     });
 
-    it("user or guest can't add new equipment", async () => {
-        vi.spyOn(Equipment, "create");
+    it("user or guest can't add new cars", async () => {
+        vi.spyOn(Car, "create");
 
         const guest = await request(app)
-            .post("/api/equipment")
-            .send(fakeEquipment());
+            .post("/api/cars")
+            .send(fakeCar());
 
         expect(guest.status).toBe(403);
 
         const user = await request(app)
-            .post("/api/equipment")
-            .send(fakeEquipment())
+            .post("/api/cars")
+            .send(fakeCar())
             .set("Authorization", userToken);
 
         expect(user.status).toBe(401);
-        expect(Equipment.create).not.toHaveBeenCalled();
+        expect(Car.create).not.toHaveBeenCalled();
     });
 
-    it("admin create new equipment", async () => {
-        vi.spyOn(Equipment, "create");
+    it("admin create new car", async () => {
+        vi.spyOn(Car, "create");
 
-        const equipment = fakeEquipment();
+        const car = fakeCar();
         const res = await request(app)
-            .post("/api/equipment")
-            .send(equipment)
+            .post("/api/cars")
+            .send(car)
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(200);
-        expect(res.body.name).toBe(equipment.name);
-        expect(res.body.description).toBe(equipment.description);
-        expect(res.body.price).toBe(equipment.price);
+        expect(res.body.name).toBe(car.name);
+        expect(res.body.description).toBe(car.description);
+        expect(res.body.price).toBe(car.price);
         expect(res.body.visibility).toBe("draft");
-        expect(Equipment.create).toHaveBeenCalledExactlyOnceWith(equipment);
+        expect(Car.create).toHaveBeenCalledExactlyOnceWith(car);
     });
 
-    it("validate equipment fields", async () => {
-        vi.spyOn(Equipment, "create");
+    it("validate car fields", async () => {
+        vi.spyOn(Car, "create");
 
         const res1 = await request(app)
-            .post("/api/equipment")
+            .post("/api/cars")
             .send({ price: faker.number.float({ min: 0.99 }) })
             .set("Authorization", adminToken);
 
@@ -92,7 +92,7 @@ describe("/api/equipment", () => {
         expect(res1.body.error).toBe("missing name");
 
         const res2 = await request(app)
-            .post("/api/equipment")
+            .post("/api/cars")
             .send({ name: faker.number.int() })
             .set("Authorization", adminToken);
 
@@ -100,135 +100,135 @@ describe("/api/equipment", () => {
         expect(res2.body.error).toBe("name must be a string");
 
         const res3 = await request(app)
-            .post("/api/equipment")
-            .send({ name: faker.commerce.productName(), description: faker.number.int() })
+            .post("/api/cars")
+            .send({ name: faker.vehicle.vehicle(), description: faker.number.int() })
             .set("Authorization", adminToken);
 
         expect(res3.status).toBe(400);
         expect(res3.body.error).toBe("description must be a string");
 
         const res4 = await request(app)
-            .post("/api/equipment")
+            .post("/api/cars")
             .send({ name: faker.commerce.productName(), })
             .set("Authorization", adminToken);
 
         expect(res4.status).toBe(400);
         expect(res4.body.error).toBe("missing price");
 
-        expect(Equipment.create).not.toHaveBeenCalled();
+        expect(Car.create).not.toHaveBeenCalled();
     });
 
-    it("create new equipment invalid price", async () => {
-        vi.spyOn(Equipment, "create");
+    it("create new car invalid price", async () => {
+        vi.spyOn(Car, "create");
 
-        const equipment = fakeEquipment();
+        const car = fakeCar();
         const res = await request(app)
-            .post("/api/equipment")
-            .send({ ...equipment, price: -equipment.price })
+            .post("/api/cars")
+            .send({ ...car, price: -car.price })
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(400);
         expect(res.body.error).toBe("price can't be negative");
-        expect(Equipment.create).not.toHaveBeenCalled();
+        expect(Car.create).not.toHaveBeenCalled();
     });
 
-    it("user or guest can't edit equipment", async () => {
-        vi.spyOn(Equipment, "findByIdAndUpdate");
+    it("user or guest can't edit car", async () => {
+        vi.spyOn(Car, "findByIdAndUpdate");
 
-        const original = fakeEquipment();
-        const edit = fakeEquipment();
+        const original = fakeCar();
+        const edit = fakeCar();
 
         const post = await request(app)
-            .post("/api/equipment")
+            .post("/api/cars")
             .send(original)
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
         const res = await request(app)
-            .put(`/api/equipment/${id}`)
+            .put(`/api/cars/${id}`)
             .send(edit)
             .set("Authorization", userToken);
 
         expect(res.status).toBe(401);
-        expect(Equipment.findByIdAndUpdate).not.toHaveBeenCalled();
+        expect(Car.findByIdAndUpdate).not.toHaveBeenCalled();
 
-        const equipment = await Equipment.findById(id);
+        const car = await Car.findById(id);
 
-        expect(equipment?.name).toBe(original.name);
-        expect(equipment?.description).toBe(original.description);
-        expect(equipment?.price).toBe(original.price);
+        expect(car?.name).toBe(original.name);
+        expect(car?.description).toBe(original.description);
+        expect(car?.price).toBe(original.price);
     });
 
-    it("admin edit equipment", async () => {
-        vi.spyOn(Equipment, "findByIdAndUpdate");
+    it("admin edit car", async () => {
+        vi.spyOn(Car, "findByIdAndUpdate");
 
-        const original = fakeEquipment();
-        const edit = fakeEquipment();
+        const original = fakeCar();
+        const edit = fakeCar();
 
         const post = await request(app)
-            .post("/api/equipment")
+            .post("/api/cars")
             .send(original)
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
         const res = await request(app)
-            .put(`/api/equipment/${id}`)
+            .put(`/api/cars/${id}`)
             .send(edit)
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(200);
-        expect(Equipment.findByIdAndUpdate).toHaveBeenCalledOnce();
+        expect(Car.findByIdAndUpdate).toHaveBeenCalledOnce();
 
-        const data = await Equipment.findById(id);
+        const data = await Car.findById(id);
         expect(data?.name).toBe(edit.name);
         expect(data?.description).toBe(edit.description);
         expect(data?.price).toBe(edit.price);
     });
 
-    it("user or guest can't delete equipment", async () => {
-        vi.spyOn(Equipment, "findByIdAndDelete");
+    it("user or guest can't delete car", async () => {
+        vi.spyOn(Car, "findByIdAndDelete");
 
         const post = await request(app)
-            .post("/api/equipment")
-            .send(fakeEquipment())
+            .post("/api/cars")
+            .send(fakeCar())
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
-        const guest = await request(app).delete(`/api/equipment/${id}`);
+        const guest = await request(app).delete(`/api/cars/${id}`);
         expect(guest.status).toBe(403);
 
         const user = await request(app)
-            .delete(`/api/equipment/${id}`)
+            .delete(`/api/cars/${id}`)
             .set("Authorization", userToken);
 
         expect(user.status).toBe(401);
-        expect(Equipment.findByIdAndDelete).not.toHaveBeenCalled();
+        expect(Car.findByIdAndDelete).not.toHaveBeenCalled();
 
-        const data = await Equipment.findById(id);
+        const data = await Car.findById(id);
         expect(data).toBeTruthy();
     });
 
-    it("admin delete equipment", async () => {
-        vi.spyOn(Equipment, "findByIdAndDelete");
+    it("admin delete car", async () => {
+        vi.spyOn(Car, "findByIdAndDelete");
 
         const post = await request(app)
-            .post("/api/equipment")
-            .send(fakeEquipment())
+            .post("/api/cars")
+            .send(fakeCar())
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
         const res = await request(app)
-            .delete(`/api/equipment/${id}`)
+            .delete(`/api/cars/${id}`)
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(200);
-        expect(Equipment.findByIdAndDelete).toHaveBeenCalledExactlyOnceWith(id);
+        expect(Car.findByIdAndDelete).toHaveBeenCalledExactlyOnceWith(id);
 
-        const data = await Equipment.findById(id);
+        const data = await Car.findById(id);
         expect(data).toBeFalsy();
     });
 });

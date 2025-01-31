@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Link, LoaderFunctionArgs, useLoaderData, useNavigate, useRevalidator } from "react-router-dom";
 import { useAuth } from "../context/Auth";
-import EquipmentForm from "../components/EquipmentForm";
 import ReservationForm from "../components/ReservationForm";
-import Equipment from "../components/Equipment";
-import { EquipmentData, ReservationData } from "../utilities";
+import Car from "../components/Car";
+import CarForm from "../components/CarForm";
+import { CarData, ReservationData } from "../utilities";
 import Section from "../components/Section";
 import Reservation from "../components/Reservation";
 
-export const equipmentDetailsLoader = (token?: string) => {
+export const carDetailsLoader = (token?: string) => {
     const fetchData = async (url: string) => {
         const res = await fetch(url, {
             headers: { "Authorization": `Bearer ${token}` },
@@ -28,22 +28,22 @@ export const equipmentDetailsLoader = (token?: string) => {
 
     return async ({ params }: LoaderFunctionArgs) => {
         return Promise.all([
-            fetchData(`/api/equipment/${params.id}`),
+            fetchData(`/api/cars/${params.id}`),
             fetchData(`/api/reservation/for/${params.id}`),
         ]);
     }
 }
 
-const EquipmentDetails = () => {
-    const [equipment, reservations] = useLoaderData<[EquipmentData, ReservationData[]]>();
+const CarDetails = () => {
+    const [car, reservations] = useLoaderData<[CarData, ReservationData[]]>();
     const [formError, setFormError] = useState<string | undefined>(undefined);
     const { user } = useAuth();
     const navigate = useNavigate();
     const revalidator = useRevalidator();
 
-    const updateEquipment = async (name?: string, description?: string, price?: number, visibility?: string) => {
+    const updateCar = async (name?: string, description?: string, price?: number, visibility?: string) => {
         setFormError(undefined);
-        const res = await fetch(`/api/equipment/${equipment._id}`, {
+        const res = await fetch(`/api/cars/${car._id}`, {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -61,8 +61,8 @@ const EquipmentDetails = () => {
         }
     }
 
-    const deleteEquipment = async () => {
-        const res = await fetch(`/api/equipment/${equipment._id}`, {
+    const deleteCar = async () => {
+        const res = await fetch(`/api/cars/${car._id}`, {
             method: "DELETE",
             headers: {
                 "Authorization": `Bearer ${user?.token}`,
@@ -74,7 +74,7 @@ const EquipmentDetails = () => {
             console.error(json.error);
         }
         else {
-            navigate("/equipment");
+            navigate("/cars");
         }
     }
 
@@ -87,7 +87,7 @@ const EquipmentDetails = () => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                equipment: equipment._id,
+                car: car._id,
                 date: { start, end },
             }),
         });
@@ -104,15 +104,15 @@ const EquipmentDetails = () => {
     return (
         <div className="mx-auto w-full px-8">
             <Section
-                title="Equipment Details"
-                element={<Equipment className="mb-4" {...equipment} />} />
+                title="Car Details"
+                element={<Car className="mb-4" {...car} />} />
             {user?.admin && (
                 <Section
                     title="Edit Details"
-                    element={<EquipmentForm
-                        defaultValues={equipment}
-                        handleSubmit={updateEquipment}
-                        handleDelete={deleteEquipment}
+                    element={<CarForm
+                        defaultValues={car}
+                        handleSubmit={updateCar}
+                        handleDelete={deleteCar}
                         error={formError} />} />
             )}
             <Section
@@ -137,4 +137,4 @@ const EquipmentDetails = () => {
     );
 }
 
-export default EquipmentDetails;
+export default CarDetails;

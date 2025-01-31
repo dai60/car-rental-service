@@ -129,6 +129,7 @@ const ReservationDetails = () => {
                     </form>
                 ) : (
                     <ReservationForm
+                        price={typeof data.car !== "string" ? data.car.price : 0}
                         buttonText="Change Date"
                         error={formError}
                         defaultValue={[new Date(data.date.start), data.date.end ? new Date(data.date.end) : undefined]}

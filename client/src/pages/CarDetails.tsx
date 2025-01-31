@@ -131,7 +131,11 @@ const CarDetails = () => {
             {user && !user.admin && (
                 <Section
                     title="Create Reservation"
-                    element={<ReservationForm buttonText="Reserve" error={formError} handleSubmit={createReservation} />} />
+                    element={<ReservationForm
+                        price={car.price}
+                        buttonText="Reserve"
+                        error={formError}
+                        handleSubmit={createReservation} />} />
             )}
         </div>
     );

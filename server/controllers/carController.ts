@@ -7,11 +7,12 @@ type CarFormData = {
     name: string;
     description?: string;
     price: number;
+    imageUrl?: string;
     visibility: "draft" | "public";
 }
 
-function validateCarData(body: any): CarFormData {
-    const { name, description, price, visibility } = body;
+function validateCarData(body: any, file?: Express.Multer.File): CarFormData {
+    const { name, description, price, visibility } = JSON.parse(body.json);
 
     if (!name) {
         throw new FormError("missing name");
@@ -35,7 +36,13 @@ function validateCarData(body: any): CarFormData {
         throw new FormError("visibility must be 'draft' or 'public'");
     }
 
-    return { name, description, price, visibility };
+    return {
+        name,
+        description,
+        price,
+        imageUrl: file?.path,
+        visibility,
+    };
 }
 
 export const getCar = async (req: Request, res: Response): Promise<void> => {
@@ -66,7 +73,7 @@ export const getAllCars = async (req: Request, res: Response): Promise<void> => 
 
 export const addNewCar = async (req: Request, res: Response): Promise<void> => {
     try {
-        const data = validateCarData(req.body);
+        const data = validateCarData(req.body, req.file);
         const car = await Car.create(data);
         res.status(200).json(car);
     }
@@ -83,7 +90,7 @@ export const addNewCar = async (req: Request, res: Response): Promise<void> => {
 export const updateCar = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
      try {
-        const data = validateCarData(req.body);
+        const data = validateCarData(req.body, req.file);
         const car = await Car.findByIdAndUpdate(id, data);
         if (!car) {
             res.sendStatus(404);

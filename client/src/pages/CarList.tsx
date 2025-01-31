@@ -33,15 +33,19 @@ const CarList = () => {
     const { user } = useAuth();
     const revalidator = useRevalidator();
 
-    const addNewCar = async (name?: string, description?: string, price?: number, visibility?: string) => {
+    const addNewCar = async (name?: string, description?: string, price?: number, image?: File, visibility?: string) => {
         setFormError(undefined);
+
+        const formData = new FormData();
+        if (image) {
+            formData.append("image", image);
+        }
+        formData.append("json", JSON.stringify({ name, description, price, visibility }));
+
         const res = await fetch("/api/cars", {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${user?.token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name, description, price, visibility })
+            headers: { "Authorization": `Bearer ${user?.token}` },
+            body: formData,
         });
 
         const json = await res.json();

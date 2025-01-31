@@ -17,6 +17,7 @@ export type CarData = {
     name: string;
     description?: string;
     price: number;
+    imageUrl?: string;
     visibility: "draft" | "public";
 } & Timestamps;
 

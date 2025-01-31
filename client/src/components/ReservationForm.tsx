@@ -1,9 +1,10 @@
-import { addMonths, format } from "date-fns";
+import { addMonths, eachDayOfInterval, format } from "date-fns";
 import { useState } from "react";
 import Button from "./Button";
 import Calendar, { CalendarDateState } from "./Calendar";
 
 type ReservationFormProps = {
+    price: number;
     buttonText: string;
     error?: string;
     defaultValue?: CalendarDateState
@@ -11,12 +12,15 @@ type ReservationFormProps = {
     handleCancel?: () => Promise<void>;
 }
 
-const ReservationForm = ({ buttonText, error, defaultValue, handleSubmit, handleCancel }: ReservationFormProps) => {
+const ReservationForm = ({ price, buttonText, error, defaultValue, handleSubmit, handleCancel }: ReservationFormProps) => {
     const [date, setDate] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const minDate = new Date();
     const maxDate = addMonths(minDate, 6);
+
+    const totalPrice = !date[0] ? 0 :
+        (!date[1] ? price : price * eachDayOfInterval({ start: date[0], end: date[1] }).length);
 
     return (
         <form
@@ -30,13 +34,12 @@ const ReservationForm = ({ buttonText, error, defaultValue, handleSubmit, handle
             }}>
             <p className="block text-sm mb-1">Reservation date:</p>
             <Calendar
-                className="w-fit h-fit mb-1"
+                className="w-fit h-fit mb-2"
                 min={minDate}
                 max={maxDate}
                 defautValue={defaultValue}
                 onSelect={setDate} />
-            <p className="text-sm">From: {date[0] ? format(date[0], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
-            <p className="text-sm mb-1">To: {date[1] ? format(date[1], "yyyy-MM-dd") : "YYYY-MM-DD"}</p>
+            <p className="text-sm">Total Price: <span className="text-xl font-semibold">${totalPrice.toFixed(2)}</span></p>
             {error && <p className="text-error font-semibold">{error}</p>}
             <div className="mt-4">
                 <Button submit={true} disabled={isSubmitting} className="bg-accent me-2">{buttonText}</Button>

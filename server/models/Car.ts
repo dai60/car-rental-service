@@ -12,6 +12,9 @@ const carSchema = new Schema({
         type: Number,
         required: true,
     },
+    imageUrl: {
+        type: String,
+    },
     visibility: {
         type: String,
         enum: ["draft", "public"],

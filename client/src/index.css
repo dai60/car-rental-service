@@ -12,4 +12,6 @@
     --color-accent: var(--color-yellow-600);
     --color-error: var(--color-red-600);
     --color-ok: var(--color-green-600);
+
+    --font-roboto: "Roboto", serif;
 }

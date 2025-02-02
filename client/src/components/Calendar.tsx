@@ -61,7 +61,7 @@ const Calendar = ({ className = "", min, max, defautValue, onSelect }: CalendarP
     }, [selected]);
 
     return (
-        <div className={`border-2 border-primary rounded-md ${className}`}>
+        <div className={`border-2 border-primary rounded-md w-full sm:w-fit ${className}`}>
             <div className="flex justify-between items-center border border-primary">
                 <button onClick={e => {
                     e.preventDefault();

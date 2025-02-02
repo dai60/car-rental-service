@@ -41,15 +41,19 @@ const CarDetails = () => {
     const navigate = useNavigate();
     const revalidator = useRevalidator();
 
-    const updateCar = async (name?: string, description?: string, price?: number, visibility?: string) => {
+    const updateCar = async (model?: string, description?: string, price?: number, image?: File, visibility?: string) => {
         setFormError(undefined);
+
+        const formData = new FormData();
+        if (image) {
+            formData.append("image", image);
+        }
+        formData.append("json", JSON.stringify({ model, description, price, visibility }));
+
         const res = await fetch(`/api/cars/${car._id}`, {
             method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${user?.token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ name, description, price, visibility })
+            headers: { "Authorization": `Bearer ${user?.token}` },
+            body: formData,
         });
 
         const json = await res.json();
@@ -105,7 +109,7 @@ const CarDetails = () => {
         <div className="mx-auto w-full px-8">
             <Section
                 title="Car Details"
-                element={<Car className="mb-4" {...car} />} />
+                element={<Car className="mb-4" modal {...car} />} />
             {user?.admin && (
                 <Section
                     title="Edit Details"

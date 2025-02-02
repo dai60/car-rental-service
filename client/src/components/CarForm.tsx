@@ -3,10 +3,10 @@ import Button from "./Button";
 
 type CarFormProps = {
     error?: string;
-    handleSubmit: (name?: string, description?: string, price?: number, image?: File, visibility?: string) => Promise<void>;
+    handleSubmit: (model?: string, description?: string, price?: number, image?: File, visibility?: string) => Promise<void>;
     handleDelete?: () => Promise<void>;
     defaultValues?: {
-        name?: string;
+        model?: string;
         description?: string;
         price?: number;
         visibility?: string;
@@ -20,7 +20,7 @@ const CarForm = ({ error, handleSubmit, handleDelete, defaultValues }: CarFormPr
     const formRef = useRef<HTMLFormElement>(null);
 
     const id = useId();
-    const nameId = id + "-name";
+    const modelId = id + "-model";
     const descriptionId = id + "-description";
     const priceId = id + "-price";
     const visibilityId = id + "-visibility";
@@ -34,20 +34,23 @@ const CarForm = ({ error, handleSubmit, handleDelete, defaultValues }: CarFormPr
 
                 const form = formRef.current;
                 setIsSubmitting(true);
-                await handleSubmit(form?.nameInput.value, form?.description.value, form?.price.valueAsNumber, form?.image.files[0], form?.visibility.value);
+                await handleSubmit(form?.model.value, form?.description.value, form?.price.valueAsNumber, form?.image.files[0], form?.visibility.value);
 
                 setIsSubmitting(false);
                 setImagePreview(undefined);
                 form?.reset();
             }}>
-            <label className="block text-sm mb-1" htmlFor={nameId}>Name</label>
-            <input className="w-full bg-background-secondary mb-2" type="text" name="nameInput" id={nameId} disabled={isSubmitting} defaultValue={defaultValues?.name} required />
+            <label className="block text-sm mb-1" htmlFor={modelId}>Model</label>
+            <input className="w-full bg-background-secondary mb-2 px-2 py-1" type="text" name="model" id={modelId} disabled={isSubmitting} defaultValue={defaultValues?.model} required />
             <label className="block text-sm mb-1" htmlFor={descriptionId}>Description</label>
-            <textarea className="w-full bg-background-secondary mb-2" name="description" id={descriptionId} disabled={isSubmitting} rows={3} defaultValue={defaultValues?.description}></textarea>
+            <textarea className="w-full bg-background-secondary mb-2 px-2 py-1" name="description" id={descriptionId} disabled={isSubmitting} rows={3} defaultValue={defaultValues?.description}></textarea>
             <label className="block text-sm mb-1" htmlFor={priceId}>Price</label>
-            <input className="w-full bg-background-secondary mb-2" type="number" min="0" step="0.01" name="price" id={priceId} disabled={isSubmitting} defaultValue={defaultValues?.price?.toFixed(2)} required />
+            <div className="flex items-center mb-2">
+                <input className="flex-1 bg-background-secondary px-2 py-1" type="number" min="0" step="0.01" name="price" id={priceId} disabled={isSubmitting} defaultValue={defaultValues?.price?.toFixed(2)} required />
+                <p className="ms-2 text-sm"> / day</p>
+            </div>
             <label className="block text-sm mb-1">Image</label>
-            <input className="w-full file:bg-background-secondary file:px-2 file:me-2 cursor-pointer mb-2" name="image" type="file" accept="image/*" onChange={(e) => {
+            <input className="w-full file:bg-background-secondary file:me-2 file:px-2 file:py-1 cursor-pointer mb-2" name="image" type="file" accept="image/*" onChange={(e) => {
                 const file = formRef.current?.image.files[0];
                 if (file) {
                     setImagePreview(URL.createObjectURL(file));
@@ -55,15 +58,15 @@ const CarForm = ({ error, handleSubmit, handleDelete, defaultValues }: CarFormPr
             }} />
             {imagePreview && <img src={imagePreview} alt="Preview" className="h-32 mb-2"></img>}
             <label className="block text-sm mb-1" htmlFor={visibilityId}>Visibility</label>
-            <select className="bg-background-secondary w-36 mb-2" name="visibility" id={visibilityId} disabled={isSubmitting} defaultValue={defaultValues?.visibility} required>
+            <select className="bg-background-secondary w-full sm:w-36 mb-2 px-2 py-1" name="visibility" id={visibilityId} disabled={isSubmitting} defaultValue={defaultValues?.visibility} required>
                 <option value="draft">Draft</option>
                 <option value="public">Public</option>
             </select>
             {error && <p className="text-error text-semibold">{error}</p>}
-            <div>
-                <Button disabled={isSubmitting} submit={true} className="bg-accent mt-4 me-2">Save</Button>
+            <div className="mt-4">
+                <Button disabled={isSubmitting} submit={true} className="block w-full sm:max-w-fit sm:inline bg-accent mb-2 me-2">Save</Button>
                 {handleDelete && (
-                    <Button disabled={isSubmitting} className="bg-error mt-4"
+                    <Button disabled={isSubmitting} className="bg-error w-full sm:max-w-fit block sm:inline"
                         onClick={e => {
                             e.preventDefault();
                             handleDelete();

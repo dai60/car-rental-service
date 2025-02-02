@@ -47,7 +47,8 @@ export const getUserReservations = async (req: Request, res: Response): Promise<
         const reservations = await Reservation
             .find({ user: req.user?.id })
             .sort({ date: 1 })
-            .populate("car");
+            .populate("car")
+            .populate("user", "email");
 
         res.status(200).json(reservations);
     }

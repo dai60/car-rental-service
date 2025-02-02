@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
+import "multer";
 import Car from "../models/Car";
 import Reservation from "../models/Reservation";
 import { FormError } from "../utilities";
 
 type CarFormData = {
-    name: string;
+    model: string;
     description?: string;
     price: number;
     imageUrl?: string;
@@ -12,13 +13,13 @@ type CarFormData = {
 }
 
 function validateCarData(body: any, file?: Express.Multer.File): CarFormData {
-    const { name, description, price, visibility } = JSON.parse(body.json);
+    const { model, description, price, visibility } = JSON.parse(body.json);
 
-    if (!name) {
-        throw new FormError("missing name");
+    if (!model) {
+        throw new FormError("missing model");
     }
-    if (typeof name !== "string") {
-        throw new FormError("name must be a string");
+    if (typeof model !== "string") {
+        throw new FormError("model must be a string");
     }
     if (description && typeof description !== "string") {
         throw new FormError("description must be a string");
@@ -37,7 +38,7 @@ function validateCarData(body: any, file?: Express.Multer.File): CarFormData {
     }
 
     return {
-        name,
+        model,
         description,
         price,
         imageUrl: file?.path,

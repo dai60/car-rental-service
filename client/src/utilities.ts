@@ -14,7 +14,7 @@ export type UserData = {
 
 export type CarData = {
     _id: string;
-    name: string;
+    model: string;
     description?: string;
     price: number;
     imageUrl?: string;

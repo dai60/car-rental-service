@@ -32,7 +32,7 @@ describe("/api/reservation", () => {
     let carId: string;
 
     const car = {
-        name: faker.vehicle.vehicle(),
+        model: faker.vehicle.vehicle(),
         price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 }),
     };
 
@@ -53,7 +53,7 @@ describe("/api/reservation", () => {
 
         const post = await request(app)
             .post("/api/cars")
-            .send(car)
+            .field("json", JSON.stringify(car))
             .set("Authorization", adminToken);
 
         carId = post.body._id;

@@ -3,18 +3,11 @@ import { useAuth } from "../context/Auth";
 
 type AuthRouteProps = {
     element: JSX.Element;
-    admin?: boolean;
 }
 
-const AuthRoute = ({ element, admin = false }: AuthRouteProps) => {
+const AuthRoute = ({ element }: AuthRouteProps) => {
     const { user } = useAuth();
-
-    if (user) {
-        if (!admin || user.admin) {
-            return element;
-        }
-    }
-    return <Navigate to="/" />;
+    return user ? element : <Navigate to="/" />;
 }
 
 export default AuthRoute;

@@ -42,12 +42,12 @@ const ReservationForm = ({ price, buttonText, error, defaultValue, handleSubmit,
             <p className="text-sm">Total Price: <span className="text-xl font-semibold">${totalPrice.toFixed(2)}</span></p>
             {error && <p className="text-error font-semibold">{error}</p>}
             <div className="mt-4">
-                <Button submit={true} disabled={isSubmitting} className="bg-accent me-2">{buttonText}</Button>
+                <Button submit={true} disabled={isSubmitting} className="bg-accent me-2 mb-2 block sm:inline w-full sm:w-fit">{buttonText}</Button>
                 {handleCancel && <Button disabled={isSubmitting} onClick={async () => {
                     setIsSubmitting(true);
                     await handleCancel();
                     setIsSubmitting(false);
-                }} className="bg-error">Cancel</Button>}
+                }} className="bg-error block sm:inline w-full sm:w-fit">Cancel</Button>}
             </div>
         </form>
     );

@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const carSchema = new Schema({
-    name: {
+    model: {
         type: String,
         required: true,
     },

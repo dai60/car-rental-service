@@ -5,6 +5,7 @@ import app from "../app";
 import User from "../models/User";
 import Car from "../models/Car";
 import { faker } from "@faker-js/faker";
+import { model } from "mongoose";
 
 beforeAll(async () => {
     await dbConnect();
@@ -20,7 +21,7 @@ afterEach(async () => {
 
 function fakeCar() {
     return {
-        name: faker.vehicle.vehicle(),
+        model: faker.vehicle.vehicle(),
         description: faker.commerce.productDescription(),
         price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2, }),
     };
@@ -50,13 +51,13 @@ describe("/api/cars", () => {
 
         const guest = await request(app)
             .post("/api/cars")
-            .send(fakeCar());
+            .field("json", JSON.stringify(fakeCar()));
 
         expect(guest.status).toBe(403);
 
         const user = await request(app)
             .post("/api/cars")
-            .send(fakeCar())
+            .field("json", JSON.stringify(fakeCar()))
             .set("Authorization", userToken);
 
         expect(user.status).toBe(401);
@@ -69,11 +70,11 @@ describe("/api/cars", () => {
         const car = fakeCar();
         const res = await request(app)
             .post("/api/cars")
-            .send(car)
+            .field("json", JSON.stringify(car))
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(200);
-        expect(res.body.name).toBe(car.name);
+        expect(res.body.model).toBe(car.model);
         expect(res.body.description).toBe(car.description);
         expect(res.body.price).toBe(car.price);
         expect(res.body.visibility).toBe("draft");
@@ -85,23 +86,23 @@ describe("/api/cars", () => {
 
         const res1 = await request(app)
             .post("/api/cars")
-            .send({ price: faker.number.float({ min: 0.99 }) })
+            .field("json", JSON.stringify({ price: faker.number.float({ min: 0.99 }) }))
             .set("Authorization", adminToken);
 
         expect(res1.status).toBe(400);
-        expect(res1.body.error).toBe("missing name");
+        expect(res1.body.error).toBe("missing model");
 
         const res2 = await request(app)
             .post("/api/cars")
-            .send({ name: faker.number.int() })
+            .field("json", JSON.stringify({ model: faker.number.int() }))
             .set("Authorization", adminToken);
 
         expect(res2.status).toBe(400);
-        expect(res2.body.error).toBe("name must be a string");
+        expect(res2.body.error).toBe("model must be a string");
 
         const res3 = await request(app)
             .post("/api/cars")
-            .send({ name: faker.vehicle.vehicle(), description: faker.number.int() })
+            .field("json", JSON.stringify({ model: faker.vehicle.vehicle(), description: faker.number.int() }))
             .set("Authorization", adminToken);
 
         expect(res3.status).toBe(400);
@@ -109,7 +110,7 @@ describe("/api/cars", () => {
 
         const res4 = await request(app)
             .post("/api/cars")
-            .send({ name: faker.commerce.productName(), })
+            .field("json", JSON.stringify({ model: faker.vehicle.vehicle() }))
             .set("Authorization", adminToken);
 
         expect(res4.status).toBe(400);
@@ -124,7 +125,7 @@ describe("/api/cars", () => {
         const car = fakeCar();
         const res = await request(app)
             .post("/api/cars")
-            .send({ ...car, price: -car.price })
+            .field("json", JSON.stringify({ ...car, price: -car.price }))
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(400);
@@ -140,14 +141,14 @@ describe("/api/cars", () => {
 
         const post = await request(app)
             .post("/api/cars")
-            .send(original)
+            .field("json", JSON.stringify(original))
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
         const res = await request(app)
             .put(`/api/cars/${id}`)
-            .send(edit)
+            .field("json", JSON.stringify(edit))
             .set("Authorization", userToken);
 
         expect(res.status).toBe(401);
@@ -155,7 +156,7 @@ describe("/api/cars", () => {
 
         const car = await Car.findById(id);
 
-        expect(car?.name).toBe(original.name);
+        expect(car?.model).toBe(original.model);
         expect(car?.description).toBe(original.description);
         expect(car?.price).toBe(original.price);
     });
@@ -168,21 +169,21 @@ describe("/api/cars", () => {
 
         const post = await request(app)
             .post("/api/cars")
-            .send(original)
+            .field("json", JSON.stringify(original))
             .set("Authorization", adminToken);
 
         const id = post.body._id;
 
         const res = await request(app)
             .put(`/api/cars/${id}`)
-            .send(edit)
+            .field("json", JSON.stringify(edit))
             .set("Authorization", adminToken);
 
         expect(res.status).toBe(200);
         expect(Car.findByIdAndUpdate).toHaveBeenCalledOnce();
 
         const data = await Car.findById(id);
-        expect(data?.name).toBe(edit.name);
+        expect(data?.model).toBe(edit.model);
         expect(data?.description).toBe(edit.description);
         expect(data?.price).toBe(edit.price);
     });
@@ -192,7 +193,7 @@ describe("/api/cars", () => {
 
         const post = await request(app)
             .post("/api/cars")
-            .send(fakeCar())
+            .field("json", JSON.stringify(fakeCar()))
             .set("Authorization", adminToken);
 
         const id = post.body._id;
@@ -216,7 +217,7 @@ describe("/api/cars", () => {
 
         const post = await request(app)
             .post("/api/cars")
-            .send(fakeCar())
+            .field("json", JSON.stringify(fakeCar()))
             .set("Authorization", adminToken);
 
         const id = post.body._id;

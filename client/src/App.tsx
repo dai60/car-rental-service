@@ -62,6 +62,10 @@ function Router() {
                     element: <AuthRoute element={<ReservationDetails />} />,
                     loader: reservationDetailsLoader(user?.token),
                 },
+                {
+                    path: "*",
+                    element: <ErrorPage message="404 Not Found" />
+                }
             ],
         }],
     }]);

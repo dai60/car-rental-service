@@ -1,8 +1,11 @@
 import { useRouteError } from "react-router-dom";
 
-const ErrorPage = () => {
+type ErrorProps = {
+    message?: string;
+}
+
+const ErrorPage = ({ message }: ErrorProps) => {
     const error = useRouteError();
-    let message = "unknown error";
     if (error instanceof Error) {
         message = error.message;
     }

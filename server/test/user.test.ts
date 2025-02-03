@@ -57,7 +57,7 @@ describe("/api/user", () => {
         expect(res2.body.error).toBe("missing password");
     });
 
-    it("sign up", async () => {
+    it("user sign up", async () => {
         vi.spyOn(User, "create");
 
         const email = faker.internet.email();
@@ -76,6 +76,27 @@ describe("/api/user", () => {
         expect(user).not.toBeNull();
         expect(user?.email).toEqual(email);
         expect(user?.admin).toEqual(false);
+    });
+
+    it("admin sign up", async () => {
+        vi.spyOn(User, "create");
+
+        const email = faker.internet.email();
+        const password = faker.internet.password();
+
+        const res = await request(app)
+            .post("/api/user/signup")
+            .send({ email, password, admin: true });
+
+        expect(res.status).toBe(200);
+        expect(res.body.email).toEqual(email);
+
+        expect(User.create).toHaveBeenCalledOnce();
+
+        const user = await User.findOne({ email });
+        expect(user).not.toBeNull();
+        expect(user?.email).toEqual(email);
+        expect(user?.admin).toEqual(true);
     });
 
     it("sign up when user exists", async () => {

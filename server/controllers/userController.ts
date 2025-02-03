@@ -17,7 +17,7 @@ const createUserToken = (id: Types.ObjectId): string => {
 }
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
-    const { email, password } = req.body;
+    const { email, password, admin } = req.body;
 
     try {
         if (!email) {
@@ -42,7 +42,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
 
-        const user = await User.create({ email, password: hash });
+        const user = await User.create({ email, password: hash, admin });
         const token = createUserToken(user._id);
 
         res.status(200).json({ _id: user._id, email, admin: user.admin, token });

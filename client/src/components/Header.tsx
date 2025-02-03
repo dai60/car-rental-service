@@ -31,7 +31,7 @@ const Header = () => {
                     ) : (
                         <>
                             <Link to="/login" className="cursor-pointer hover:opacity-80 transition-opacity">Log in</Link>
-                            <Link to="/login" className="cursor-pointer hover:opacity-80 transition-opacity">Sign up</Link>
+                            <Link to="/signup" className="cursor-pointer hover:opacity-80 transition-opacity">Sign up</Link>
                         </>
                     )}
                 </div>

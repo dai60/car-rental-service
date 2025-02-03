@@ -1,9 +1,8 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { dbConnect, dbDisconnect } from "./setup";
-import { faker, fakerAF_ZA } from "@faker-js/faker";
+import { faker } from "@faker-js/faker";
 import request from "supertest";
 import app from "../app";
-import User from "../models/User";
 import Reservation from "../models/Reservation";
 
 beforeAll(async () => {
@@ -39,12 +38,7 @@ describe("/api/reservation", () => {
     const newUser = async (admin: boolean = false): Promise<[string, string]> => {
         const res = await request(app)
             .post("/api/user/signup")
-            .send({ email: faker.internet.email(), password: faker.internet.password() });
-
-        if (admin) {
-            await User.findByIdAndUpdate(res.body._id, { admin: true });
-        }
-
+            .send({ email: faker.internet.email(), password: faker.internet.password(), admin });
         return [res.body._id, `Bearer ${res.body.token}`];
     }
 
@@ -94,6 +88,23 @@ describe("/api/reservation", () => {
 
         expect(res.status).toBe(400);
         expect(res.body.error).toBe("reservation start can't be in the past");
+        expect(Reservation.create).not.toHaveBeenCalledOnce();
+    });
+
+    it("user can't create reservation ending before start", async () => {
+        vi.spyOn(Reservation, "create");
+
+        const [userId, userToken] = await newUser();
+        const start = faker.date.soon({ days: 30 });
+        const end = faker.date.recent({ days: 10, refDate: start })
+
+        const res = await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start, end } })
+            .set("Authorization", userToken);
+
+        expect(res.status).toBe(400);
+        expect(res.body.error).toBe("reservation end can't be before start");
         expect(Reservation.create).not.toHaveBeenCalledOnce();
     });
 
@@ -164,6 +175,48 @@ describe("/api/reservation", () => {
         expect(reservation?.status).toBe("accepted");
     });
 
+    it("user change reservation date", async () => {
+        const [userId, userToken] = await newUser();
+        const user = await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: fakeDate() })
+            .set("Authorization", userToken);
+
+        const edit = fakeDate();
+        const res = await request(app)
+            .patch(`/api/reservation/date/${user.body._id}`)
+            .send({ start: edit.start, end: edit.end })
+            .set("Authorization", userToken);
+
+        expect(res.status).toBe(200);
+
+        const reservation = await Reservation.findById(user.body._id);
+        console.log(reservation);
+        expect(reservation?.date?.start).toStrictEqual(edit.start);
+        expect(reservation?.date?.end).toStrictEqual(edit.end);
+    });
+
+    it("admin can't change reservation date", async () => {
+        const [userId, userToken] = await newUser();
+        const date = fakeDate();
+        const user = await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date })
+            .set("Authorization", userToken);
+
+        const accepted = await request(app)
+            .patch(`/api/reservation/date/${user.body._id}`)
+            .send({ start: faker.date.soon({ days: 10 }) })
+            .set("Authorization", adminToken);
+
+        expect(accepted.status).toBe(401);
+
+        const reservation = await Reservation.findById(user.body._id);
+        expect(reservation?.date?.start).toStrictEqual(date.start);
+        expect(reservation?.date?.end).toStrictEqual(date.end);
+    });
+
+
     it("user cancel reservation", async () => {
         vi.spyOn(Reservation, "findByIdAndDelete");
 
@@ -209,5 +262,143 @@ describe("/api/reservation", () => {
 
         const reservation = await Reservation.findById(post.body._id);
         expect(reservation).toBeTruthy();
+    });
+
+    it("admin get all reservations", async () => {
+        const car = {
+            model: faker.vehicle.vehicle(),
+            price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 })
+        };
+
+        const post = await request(app)
+            .post("/api/cars")
+            .field("json", JSON.stringify(car))
+            .set("Authorization", adminToken);
+
+        const carId = post.body._id;
+
+        const [userId, userToken] = await newUser();
+        const [userId2, userToken2] = await newUser();
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken);
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken2);
+
+        const res = await request(app)
+            .get("/api/reservation/admin")
+            .set("Authorization", adminToken);
+
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("user get own reservations", async () => {
+        const car = {
+            model: faker.vehicle.vehicle(),
+            price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 })
+        };
+
+        const post = await request(app)
+            .post("/api/cars")
+            .field("json", JSON.stringify(car))
+            .set("Authorization", adminToken);
+
+        const carId = post.body._id;
+
+        const [userId, userToken] = await newUser();
+        const [userId2, userToken2] = await newUser();
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken);
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken2);
+
+        const res = await request(app)
+            .get("/api/reservation/user")
+            .set("Authorization", userToken);
+
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].user._id).toBe(userId);
+    });
+
+    it("admin get all reservations by car", async () => {
+        const car = {
+            model: faker.vehicle.vehicle(),
+            price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 })
+        };
+
+        const post = await request(app)
+            .post("/api/cars")
+            .field("json", JSON.stringify(car))
+            .set("Authorization", adminToken);
+
+        const carId = post.body._id;
+
+        const [userId, userToken] = await newUser();
+        const [userId2, userToken2] = await newUser();
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken);
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken2);
+
+        const res = await request(app)
+            .get(`/api/reservation/for/${carId}`)
+            .set("Authorization", adminToken);
+
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(2);
+    });
+
+    it("user get own reservations by car", async () => {
+        const car = {
+            model: faker.vehicle.vehicle(),
+            price: faker.number.float({ min: 99.99, max: 99999.99, fractionDigits: 2 })
+        };
+
+        const post = await request(app)
+            .post("/api/cars")
+            .field("json", JSON.stringify(car))
+            .set("Authorization", adminToken);
+
+        const carId = post.body._id;
+
+        const [userId, userToken] = await newUser();
+        const [userId2, userToken2] = await newUser();
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken);
+
+        await request(app)
+            .post("/api/reservation")
+            .send({ car: carId, date: { start: faker.date.soon({ days: 10 }) } })
+            .set("Authorization", userToken2);
+
+        const res = await request(app)
+            .get(`/api/reservation/for/${carId}`)
+            .set("Authorization", userToken);
+
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].user._id).toBe(userId);
     });
 });

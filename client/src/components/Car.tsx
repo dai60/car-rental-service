@@ -15,7 +15,7 @@ const Car = ({ className = "", modal = false, model, description, price, imageUr
     return (
         <>
             <div className={`flex flex-col sm:flex-row items-start sm:items-stretch border-2 ${visibility === "public" ? "border-primary" : "border-secondary/50"} rounded-md ${className}`}>
-                <img onClick={() => setImageModal(true)} className="object-cover object-center w-full sm:min-w-72 min-h-48 sm:max-w-72 max-h-48" src={imageUrl ? `/${imageUrl}` : Placeholder} alt={model} />
+                <img onClick={() => setImageModal(true)} className="object-cover object-center w-full sm:min-w-72 min-h-48 sm:max-w-72 max-h-48 cursor-pointer" src={imageUrl ? `/${imageUrl}` : Placeholder} alt={model} />
                 <div className="p-4 flex flex-col">
                     <h2 className="text-xl font-bold mb-1">{model}</h2>
                     <p className="text-sm text-secondary mb-2">{description ?? "No description provided."}</p>

@@ -23,7 +23,7 @@ const Reservation = ({ className = "", date, status, user }: ReservationProps) =
 
     return (
         <div className={`border-2 ${status === "pending" || status === "rejected" ? "border-secondary/50" : "border-primary"} rounded-md ${className}`}>
-            <div className="flex p-4">
+            <div className="flex flex-col sm:flex-row p-4">
                 <div>
                     <h2 className="text-xl font-bold">Reservation</h2>
                     {date.end ? (
@@ -33,8 +33,8 @@ const Reservation = ({ className = "", date, status, user }: ReservationProps) =
                     )}
                     {typeof user !== "string" && <p>Reserved by: {user.email}</p>}
                 </div>
-                <div className="ml-auto">
-                    <p className="mb-2 text-right">Status: <span className={`${statusColor} capitalize`}>{status}</span></p>
+                <div className="sm:ml-auto">
+                    <p className="sm:text-right">Status: <span className={`${statusColor} capitalize`}>{status}</span></p>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link, useLoaderData, useRevalidator } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import Car from "../components/Car";
@@ -32,6 +32,7 @@ const CarList = () => {
     const { user } = useAuth();
     const revalidator = useRevalidator();
 
+    const sortId = useId();
     const [sort, setSort] = useState<string | undefined>(undefined);
     const [formError, setFormError] = useState<string | undefined>(undefined);
 
@@ -78,8 +79,8 @@ const CarList = () => {
         <div className="mx-auto w-full px-8">
             <Section title="All Cars" element={(
                 <div>
-                    <label className="me-2" htmlFor="">Sort by:</label>
-                    <select className="bg-background-secondary px-2 py-1 mb-4" onChange={e => setSort(e.target.value)}>
+                    <label className="me-2 mb-1 block sm:inline" htmlFor={sortId}>Sort by:</label>
+                    <select id={sortId} className="bg-background-secondary px-2 py-1 mb-4 w-full sm:w-fit" onChange={e => setSort(e.target.value)}>
                         <option value="updated">Last Updated</option>
                         <option value="created">Created</option>
                         <option value="price">Price</option>

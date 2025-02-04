@@ -46,8 +46,8 @@ const CarForm = ({ error, handleSubmit, handleDelete, defaultValues }: CarFormPr
             <textarea className="w-full bg-background-secondary mb-2 px-2 py-1" name="description" id={descriptionId} disabled={isSubmitting} rows={3} defaultValue={defaultValues?.description}></textarea>
             <label className="block text-sm mb-1" htmlFor={priceId}>Price</label>
             <div className="flex items-center mb-2">
-                <input className="flex-1 bg-background-secondary px-2 py-1" type="number" min="0" step="0.01" name="price" id={priceId} disabled={isSubmitting} defaultValue={defaultValues?.price?.toFixed(2)} required />
-                <p className="ms-2 text-sm"> / day</p>
+                <input className="flex-1 w-full bg-background-secondary px-2 py-1" type="number" min="0" step="0.01" name="price" id={priceId} disabled={isSubmitting} defaultValue={defaultValues?.price?.toFixed(2)} required />
+                <p className="ms-2 text-sm text-nowrap"> / day</p>
             </div>
             <label className="block text-sm mb-1">Image</label>
             <input className="w-full file:bg-background-secondary file:me-2 file:px-2 file:py-1 cursor-pointer mb-2" name="image" type="file" accept="image/*" onChange={(e) => {

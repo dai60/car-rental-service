@@ -50,11 +50,9 @@ const CarForm = ({ error, handleSubmit, handleDelete, defaultValues }: CarFormPr
                 <p className="ms-2 text-sm text-nowrap"> / day</p>
             </div>
             <label className="block text-sm mb-1">Image</label>
-            <input className="w-full file:bg-background-secondary file:me-2 file:px-2 file:py-1 cursor-pointer mb-2" name="image" type="file" accept="image/*" onChange={(e) => {
+            <input className="w-full file:bg-background-secondary file:me-2 file:px-2 file:py-1 cursor-pointer file:cursor-pointer mb-2" name="image" type="file" accept="image/*" onChange={(e) => {
                 const file = formRef.current?.image.files[0];
-                if (file) {
-                    setImagePreview(URL.createObjectURL(file));
-                }
+                setImagePreview(file ? URL.createObjectURL(file) : undefined);
             }} />
             {imagePreview && <img src={imagePreview} alt="Preview" className="h-32 mb-2"></img>}
             <label className="block text-sm mb-1" htmlFor={visibilityId}>Visibility</label>
